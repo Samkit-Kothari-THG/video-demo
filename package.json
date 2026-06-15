@@ -1,0 +1,26 @@
+{
+  "name": "remotion-replit-starter",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "remotion studio src/index.ts --host 0.0.0.0",
+    "dev": "remotion studio src/index.ts --host 0.0.0.0",
+    "render:hello": "remotion render src/index.ts HelloWorld out/HelloWorld.mp4",
+    "render:launch": "remotion render src/index.ts LaunchDay out/LaunchDay.mp4",
+    "render:intro": "remotion render src/index.ts IntroSequence out/IntroSequence.mp4",
+    "render:fts": "remotion render src/index.ts FirstTimeSpeakers out/FirstTimeSpeakers.mp4",
+    "render:engagement": "remotion render src/index.ts EngagementInvite out/EngagementInvite.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "remotion": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}

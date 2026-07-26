@@ -6,13 +6,15 @@ import {
   IntroSequence,
   LaunchDay,
 } from './videos';
-import {EngagementInvite} from './engagementInvite';
+import {EngagementInvite, type EngagementInviteProps} from './engagementInvite';
+import {WebSlingerIntro} from './webSlinger';
 
 export const Root: React.FC = () => {
-  const inputProps = getInputProps<{musicSrc?: string}>();
+  const inputProps = getInputProps<{musicSrc?: string} & EngagementInviteProps>();
 
   return (
     <>
+      <Composition id="WebSlingerIntro" component={WebSlingerIntro} durationInFrames={288} fps={24} width={1920} height={1080}/>
       <Composition
         id="HelloWorld"
         component={HelloWorld}
@@ -51,10 +53,23 @@ export const Root: React.FC = () => {
       <Composition
         id="EngagementInvite"
         component={EngagementInvite}
-        durationInFrames={720}
+        durationInFrames={900}
         fps={30}
         width={1080}
         height={1920}
+        defaultProps={{
+          brideName: inputProps.brideName,
+          groomName: inputProps.groomName,
+          saveDateTitle: inputProps.saveDateTitle,
+          eventLine: inputProps.eventLine,
+          coupleLine: inputProps.coupleLine,
+          date: inputProps.date,
+          venueName: inputProps.venueName,
+          familyName: inputProps.familyName,
+          photoSrc: inputProps.photoSrc,
+          musicSrc: inputProps.musicSrc,
+          showPhoto: inputProps.showPhoto,
+        }}
       />
     </>
   );

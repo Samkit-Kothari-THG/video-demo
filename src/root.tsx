@@ -5,16 +5,50 @@ import {
   HelloWorld,
   IntroSequence,
   LaunchDay,
-} from './videos';
-import {EngagementInvite, type EngagementInviteProps} from './engagementInvite';
-import {WebSlingerIntro} from './webSlinger';
+  WebSlingerIntro,
+} from './demos';
+import {
+  EngagementInvite,
+  type EngagementInviteProps,
+} from './templates/engagement';
 
 export const Root: React.FC = () => {
-  const inputProps = getInputProps<{musicSrc?: string} & EngagementInviteProps>();
+  const inputProps = getInputProps<EngagementInviteProps>();
 
   return (
     <>
-      <Composition id="WebSlingerIntro" component={WebSlingerIntro} durationInFrames={288} fps={24} width={1920} height={1080}/>
+      {/* Production template */}
+      <Composition
+        id="EngagementInvite"
+        component={EngagementInvite}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{
+          brideName: inputProps.brideName,
+          groomName: inputProps.groomName,
+          saveDateTitle: inputProps.saveDateTitle,
+          eventLine: inputProps.eventLine,
+          coupleLine: inputProps.coupleLine,
+          date: inputProps.date,
+          venueName: inputProps.venueName,
+          familyName: inputProps.familyName,
+          photoSrc: inputProps.photoSrc,
+          musicSrc: inputProps.musicSrc,
+          showPhoto: inputProps.showPhoto,
+        }}
+      />
+
+      {/* Legacy visual experiments */}
+      <Composition
+        id="WebSlingerIntro"
+        component={WebSlingerIntro}
+        durationInFrames={288}
+        fps={24}
+        width={1920}
+        height={1080}
+      />
       <Composition
         id="HelloWorld"
         component={HelloWorld}
@@ -47,28 +81,7 @@ export const Root: React.FC = () => {
         width={1080}
         height={1920}
         defaultProps={{
-          musicSrc: inputProps.musicSrc,
-        }}
-      />
-      <Composition
-        id="EngagementInvite"
-        component={EngagementInvite}
-        durationInFrames={900}
-        fps={30}
-        width={1080}
-        height={1920}
-        defaultProps={{
-          brideName: inputProps.brideName,
-          groomName: inputProps.groomName,
-          saveDateTitle: inputProps.saveDateTitle,
-          eventLine: inputProps.eventLine,
-          coupleLine: inputProps.coupleLine,
-          date: inputProps.date,
-          venueName: inputProps.venueName,
-          familyName: inputProps.familyName,
-          photoSrc: inputProps.photoSrc,
-          musicSrc: inputProps.musicSrc,
-          showPhoto: inputProps.showPhoto,
+          musicSrc: inputProps.musicSrc ?? undefined,
         }}
       />
     </>

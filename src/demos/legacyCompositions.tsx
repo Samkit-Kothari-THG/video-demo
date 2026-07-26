@@ -1,3 +1,8 @@
+/**
+ * Early Remotion experiments retained as a visual and animation reference.
+ *
+ * Production-ready, user-configurable compositions belong under `src/templates`.
+ */
 import React from 'react';
 import {
   AbsoluteFill,

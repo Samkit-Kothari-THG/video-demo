@@ -10,6 +10,11 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import {
+  resolveEngagementInviteProps,
+  type EngagementInviteProps,
+  type ResolvedEngagementInviteProps,
+} from './model';
 
 const serif = 'Georgia, "Times New Roman", serif';
 const sans =
@@ -25,23 +30,6 @@ const palette = {
   deepGold: '#8d5a1d',
   maroon: '#741f2f',
   ink: '#3b3027',
-};
-
-const defaultInvite = {
-  brideName: 'Anusha',
-  groomName: 'Akshat',
-  saveDateTitle: 'Save the Date',
-  eventLine: 'Engagement Of.',
-  coupleLine: 'Anusha with Akshat',
-  date: '20.07.2026',
-  venueName: 'The Legacy Nasik',
-  familyName: 'Bhalgat Family',
-  photoSrc: 'engagement/couple-photo.jpg',
-  musicSrc: 'engagement/indian-instrumental.wav',
-};
-
-export type EngagementInviteProps = Partial<typeof defaultInvite> & {
-  showPhoto?: boolean;
 };
 
 const fade = (frame: number, start: number, duration: number) =>
@@ -77,11 +65,7 @@ const goldText = {
 export const EngagementInvite: React.FC<EngagementInviteProps> = (props) => {
   const frame = useCurrentFrame();
   const {durationInFrames} = useVideoConfig();
-  const cleanProps = Object.fromEntries(
-    Object.entries(props).filter(([, value]) => value !== undefined),
-  ) as EngagementInviteProps;
-  const details = {...defaultInvite, ...cleanProps};
-  const showPhoto = props.showPhoto ?? true;
+  const details = resolveEngagementInviteProps(props);
   const musicSrc = details.musicSrc ? staticFile(details.musicSrc) : null;
   const audioVolume = (audioFrame: number) => {
     const intro = fade(audioFrame, 0, 24);
@@ -110,7 +94,11 @@ export const EngagementInvite: React.FC<EngagementInviteProps> = (props) => {
 
       <OpeningScene frame={frame} details={details} />
       <CoupleRevealScene frame={frame} details={details} />
-      <PhotoMomentScene frame={frame} details={details} showPhoto={showPhoto} />
+      <PhotoMomentScene
+        frame={frame}
+        details={details}
+        showPhoto={details.showPhoto}
+      />
       <DetailsScene frame={frame} details={details} />
       <FamilyScene frame={frame} details={details} />
       <FinaleScene frame={frame} details={details} />
@@ -261,7 +249,7 @@ const BackgroundMandala: React.FC = () => {
 
 const OpeningScene: React.FC<{
   frame: number;
-  details: typeof defaultInvite;
+  details: ResolvedEngagementInviteProps;
 }> = ({frame, details}) => {
   const opacity = sceneOpacity(frame, 0, 145);
   const title = fade(frame, 20, 34);
@@ -309,7 +297,7 @@ const OpeningScene: React.FC<{
 
 const CoupleRevealScene: React.FC<{
   frame: number;
-  details: typeof defaultInvite;
+  details: ResolvedEngagementInviteProps;
 }> = ({frame, details}) => {
   const opacity = sceneOpacity(frame, 105, 315);
   const {fps} = useVideoConfig();
@@ -369,7 +357,7 @@ const CoupleRevealScene: React.FC<{
 
 const PhotoMomentScene: React.FC<{
   frame: number;
-  details: typeof defaultInvite;
+  details: ResolvedEngagementInviteProps;
   showPhoto: boolean;
 }> = ({frame, details, showPhoto}) => {
   const opacity = sceneOpacity(frame, 285, 500);
@@ -427,7 +415,7 @@ const PhotoMomentScene: React.FC<{
 
 const DetailsScene: React.FC<{
   frame: number;
-  details: typeof defaultInvite;
+  details: ResolvedEngagementInviteProps;
 }> = ({frame, details}) => {
   const opacity = sceneOpacity(frame, 465, 665);
   const reveal = fade(frame, 488, 32);
@@ -476,7 +464,7 @@ const DetailsScene: React.FC<{
 
 const FamilyScene: React.FC<{
   frame: number;
-  details: typeof defaultInvite;
+  details: ResolvedEngagementInviteProps;
 }> = ({frame, details}) => {
   const opacity = sceneOpacity(frame, 625, 790);
   const reveal = fade(frame, 642, 28);
@@ -540,7 +528,7 @@ const FamilyScene: React.FC<{
 
 const FinaleScene: React.FC<{
   frame: number;
-  details: typeof defaultInvite;
+  details: ResolvedEngagementInviteProps;
 }> = ({frame, details}) => {
   const opacity = sceneOpacity(frame, 760, 900, 18);
   const reveal = fade(frame, 774, 30);

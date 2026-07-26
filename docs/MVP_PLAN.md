@@ -302,3 +302,19 @@ Build Milestone 0 followed by a single-page local editor:
 
 This creates a complete product-shaped prototype before committing to accounts,
 payments, queues, or cloud rendering.
+
+## Current implementation
+
+The repository now includes a local Next.js implementation of the product
+shape described above:
+
+- The App Router hosts the editor at `/`.
+- Projects are persisted in local JSON records.
+- Image uploads are validated and stored as render-safe assets.
+- Render requests create immutable job snapshots and expose polling status.
+- A local Remotion worker renders completed MP4 files for download.
+- The editor uses the same `EngagementInvite` component for preview and render.
+
+This is intentionally a **single-user local server**. Authentication, database
+migrations, private object storage, a durable queue, payment handling, and
+operational monitoring still require deployment-specific product decisions.

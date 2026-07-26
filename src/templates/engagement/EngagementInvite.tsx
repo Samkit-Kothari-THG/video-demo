@@ -62,11 +62,19 @@ const goldText = {
     '0 1px 0 rgba(255,249,232,0.95), 0 3px 0 rgba(141,90,29,0.18), 0 18px 36px rgba(82,49,16,0.22), 0 0 24px rgba(239,208,138,0.32)',
 };
 
+const mediaSource = (source: string | null) => {
+  if (!source) {
+    return null;
+  }
+
+  return /^(data:|blob:|https?:\/\/|\/)/.test(source) ? source : staticFile(source);
+};
+
 export const EngagementInvite: React.FC<EngagementInviteProps> = (props) => {
   const frame = useCurrentFrame();
   const {durationInFrames} = useVideoConfig();
   const details = resolveEngagementInviteProps(props);
-  const musicSrc = details.musicSrc ? staticFile(details.musicSrc) : null;
+  const musicSrc = mediaSource(details.musicSrc);
   const audioVolume = (audioFrame: number) => {
     const intro = fade(audioFrame, 0, 24);
     const outro = fadeOut(audioFrame, durationInFrames - 54, 44);
@@ -362,7 +370,7 @@ const PhotoMomentScene: React.FC<{
 }> = ({frame, details, showPhoto}) => {
   const opacity = sceneOpacity(frame, 285, 500);
   const reveal = fade(frame, 302, 34);
-  const photoSrc = details.photoSrc ? staticFile(details.photoSrc) : null;
+  const photoSrc = mediaSource(details.photoSrc);
 
   return (
     <Scene opacity={opacity}>
@@ -376,7 +384,7 @@ const PhotoMomentScene: React.FC<{
               width: 'calc(100% + 180px)',
               height: 'calc(100% + 180px)',
               objectFit: 'cover',
-              objectPosition: '50% 28%',
+              objectPosition: `50% ${Math.min(details.photoFocalPoint + 10, 100)}%`,
               opacity: 0.14 * reveal,
               filter: 'blur(14px) saturate(0.78) sepia(0.22) brightness(1.12)',
               transform: `scale(${1.08 + reveal * 0.035})`,
@@ -392,7 +400,12 @@ const PhotoMomentScene: React.FC<{
           />
         </>
       ) : null}
-      <ArchPhoto src={photoSrc} opacity={reveal} showPhoto={showPhoto} />
+      <ArchPhoto
+        src={photoSrc}
+        opacity={reveal}
+        showPhoto={showPhoto}
+        focalPoint={details.photoFocalPoint}
+      />
       <div
         style={{
           position: 'absolute',
@@ -627,7 +640,12 @@ const NameLine: React.FC<{
   <div
     style={{
       position: 'relative',
-      fontSize: size ?? (compact ? 76 : 112),
+      fontSize: (() => {
+        const baseSize = size ?? (compact ? 76 : 112);
+        const textLength = typeof children === 'string' ? children.length : 0;
+        const scale = textLength > 22 ? Math.max(0.62, 22 / textLength) : 1;
+        return baseSize * scale;
+      })(),
       lineHeight: compact ? 1.08 : 0.96,
       fontWeight: 700,
       fontStyle: 'italic',
@@ -660,6 +678,8 @@ const DetailLine: React.FC<{
   accent?: boolean;
 }> = ({label, value, delay, start, accent = false}) => {
   const p = fade(delay, start, 26);
+  const baseSize = accent ? 76 : 58;
+  const valueScale = value.length > 32 ? Math.max(0.66, 32 / value.length) : 1;
 
   return (
     <div
@@ -671,7 +691,7 @@ const DetailLine: React.FC<{
     >
       <div
         style={{
-          fontSize: accent ? 76 : 58,
+          fontSize: baseSize * valueScale,
           lineHeight: 1.08,
           fontWeight: 700,
           color: accent ? palette.maroon : palette.ink,
@@ -801,7 +821,8 @@ const ArchPhoto: React.FC<{
   src: string | null;
   opacity: number;
   showPhoto: boolean;
-}> = ({src, opacity, showPhoto}) => {
+  focalPoint: number;
+}> = ({src, opacity, showPhoto, focalPoint}) => {
   const frame = useCurrentFrame();
   const scale = interpolate(frame, [285, 500], [1.12, 1.18], {
     extrapolateLeft: 'clamp',
@@ -836,7 +857,7 @@ const ArchPhoto: React.FC<{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: '50% 18%',
+            objectPosition: `50% ${focalPoint}%`,
             filter: 'sepia(0.16) saturate(0.84) contrast(1.04) brightness(1.08)',
             transform: `scale(${scale})`,
           }}

@@ -37,6 +37,7 @@ export const Root: React.FC = () => {
           photoSrc: inputProps.photoSrc,
           musicSrc: inputProps.musicSrc,
           showPhoto: inputProps.showPhoto,
+          photoFocalPoint: inputProps.photoFocalPoint,
         }}
       />
 

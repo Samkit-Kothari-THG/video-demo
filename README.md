@@ -1,7 +1,7 @@
 # Video Invite Studio
 
-A Remotion prototype for generating personalized video invitations from
-structured user input.
+A full-stack Next.js and Remotion prototype for generating personalized video
+invitations from structured user input.
 
 The current production direction is a focused, mobile-first invitation
 generator. Earlier animation experiments remain available under `src/demos` as
@@ -31,14 +31,54 @@ docs/
   MVP_PLAN.md                      Product and delivery plan
 ```
 
-## Setup
+## Run the Next.js app
 
 ```bash
 npm install
 npm run dev
 ```
 
-Remotion Studio will show the production invitation and retained demos.
+Open [http://localhost:3000](http://localhost:3000). The Next.js application
+includes the template gallery, guided editor, live Remotion preview,
+server-backed projects, image uploads, render-job status, and MP4 downloads.
+
+## Local server implementation
+
+For this prototype, the server uses local disk so the whole MVP can run without
+external accounts:
+
+| Concern | Local implementation | Production replacement |
+| --- | --- | --- |
+| Projects and render jobs | `.data/*.json` | PostgreSQL |
+| Uploaded photos | `public/uploads/` | Private object storage + signed URLs |
+| Rendered MP4s | `public/renders/` | Object storage + expiring downloads |
+| Background rendering | In-process Remotion worker | Durable queue + dedicated workers |
+| Identity | Single local user | Auth provider and user/tenant checks |
+
+The Next API routes are:
+
+- `GET` / `POST /api/projects`
+- `GET` / `PATCH /api/projects/:id`
+- `POST /api/uploads`
+- `POST /api/renders`
+- `GET /api/renders/:id`
+
+The render request snapshots the project props before starting the job. Editing
+the invitation while a job is running will not alter that output.
+
+## Remotion Studio and CLI
+
+```bash
+npm run remotion:studio
+```
+
+The Next.js app is the primary editor. Studio remains useful for motion design,
+template work, and inspecting the retained experiments. `InviteEditor` can
+still run in Studio with browser-local fallbacks when the Next API is absent.
+
+The package versions are intentionally pinned because Remotion Studio currently
+requires the TypeScript 5 runtime API. Avoid upgrading TypeScript independently
+without checking that the installed Remotion release supports it.
 
 ## Render the engagement invitation
 
@@ -98,4 +138,5 @@ npm run render:webslinger
 
 ```bash
 npm run typecheck
+npm run build
 ```

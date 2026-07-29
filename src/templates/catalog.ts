@@ -15,6 +15,11 @@ export const invitationTemplateIds = [
 ] as const;
 
 export type InvitationTemplateId = (typeof invitationTemplateIds)[number];
+export const invitationTemplateVersions = [1, 2] as const;
+export type InvitationTemplateVersion =
+  (typeof invitationTemplateVersions)[number];
+export type InvitationTemplateKey =
+  `${InvitationTemplateId}@${InvitationTemplateVersion}`;
 export type InvitationCategory =
   | 'engagement'
   | 'wedding'
@@ -33,7 +38,7 @@ export type InvitationTemplateField = {
 
 export type InvitationTemplateDefinition = {
   id: InvitationTemplateId;
-  version: 1;
+  version: InvitationTemplateVersion;
   compositionId:
     | 'EngagementInvite'
     | 'WeddingNoor'
@@ -159,6 +164,37 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     fields: engagementFields,
   },
   {
+    id: 'engagement-invite',
+    version: 2,
+    compositionId: 'EngagementInvite',
+    name: 'Monsoon Glass',
+    category: 'engagement',
+    categoryLabel: 'Engagement',
+    description:
+      'Rain-softened glass, white roses, silver light, and a modern editorial reveal.',
+    coverSrc: '/templates/engagement-monsoon-v2.webp',
+    accent: '#426c62',
+    surface: '#e9f0eb',
+    textColor: '#24443d',
+    musicName: 'Indian instrumental',
+    nameConnector: ' with ',
+    defaults: {
+      brideName: 'Tara',
+      groomName: 'Dev',
+      coupleLine: undefined,
+      saveDateTitle: 'The next chapter',
+      eventLine: 'Engagement Evening',
+      date: '18 July 2027 · 6:30 PM',
+      venueName: 'The Glasshouse, Alibaug',
+      familyName: 'The Iyer & Khanna Families',
+      photoSrc: 'engagement/couple-photo.jpg',
+      musicSrc: 'engagement/indian-instrumental.wav',
+      showPhoto: true,
+      photoFocalPoint: 30,
+    },
+    fields: engagementFields,
+  },
+  {
     id: 'wedding-noor',
     version: 1,
     compositionId: 'WeddingNoor',
@@ -186,6 +222,37 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
       musicSrc: 'engagement/indian-instrumental.wav',
       showPhoto: true,
       photoFocalPoint: 28,
+    },
+    fields: weddingFields,
+  },
+  {
+    id: 'wedding-noor',
+    version: 2,
+    compositionId: 'WeddingNoor',
+    name: 'Ivory Garden',
+    category: 'wedding',
+    categoryLabel: 'Wedding',
+    description:
+      'Sunlit ivory stone, jasmine, champagne silk, and a serene garden ceremony.',
+    coverSrc: '/templates/wedding-ivory-v2.webp',
+    accent: '#9b7c3d',
+    surface: '#fbf5e8',
+    textColor: '#4e5b3d',
+    musicName: 'Indian instrumental',
+    nameConnector: ' & ',
+    defaults: {
+      brideName: 'Meera',
+      groomName: 'Kabir',
+      coupleLine: undefined,
+      saveDateTitle: 'With all our hearts',
+      eventLine: 'Wedding Celebration',
+      date: '21 February 2027 · 4 PM',
+      venueName: 'The Courtyard, Udaipur',
+      familyName: 'The Rao & Malhotra Families',
+      photoSrc: 'engagement/couple-photo.jpg',
+      musicSrc: 'engagement/indian-instrumental.wav',
+      showPhoto: true,
+      photoFocalPoint: 30,
     },
     fields: weddingFields,
   },
@@ -221,6 +288,37 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     fields: birthdayFields,
   },
   {
+    id: 'birthday-confetti',
+    version: 2,
+    compositionId: 'BirthdayConfetti',
+    name: 'Disco After Dark',
+    category: 'birthday',
+    categoryLabel: 'Birthday',
+    description:
+      'Chrome, midnight plum, iridescent ribbons, and electric after-dark energy.',
+    coverSrc: '/templates/birthday-disco-v2.webp',
+    accent: '#e64fd0',
+    surface: '#17121f',
+    textColor: '#f4eef9',
+    musicName: null,
+    nameConnector: '',
+    defaults: {
+      brideName: 'Zoya',
+      groomName: '',
+      coupleLine: undefined,
+      saveDateTitle: 'Meet me after dark',
+      eventLine: 'Zoya turns twenty-five',
+      date: '19 September 2026 · 9 PM',
+      venueName: 'Studio 19, New Delhi',
+      familyName: 'Hosted by the birthday crew',
+      photoSrc: 'engagement/celebration.jpg',
+      musicSrc: null,
+      showPhoto: true,
+      photoFocalPoint: 34,
+    },
+    fields: birthdayFields,
+  },
+  {
     id: 'baby-shower-moon',
     version: 1,
     compositionId: 'BabyShowerMoon',
@@ -248,6 +346,37 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
       musicSrc: 'engagement/indian-instrumental.wav',
       showPhoto: true,
       photoFocalPoint: 26,
+    },
+    fields: babyShowerFields,
+  },
+  {
+    id: 'baby-shower-moon',
+    version: 2,
+    compositionId: 'BabyShowerMoon',
+    name: 'Storybook Meadow',
+    category: 'baby-shower',
+    categoryLabel: 'Baby shower',
+    description:
+      'Painterly meadow layers, woodland details, and a soft gender-neutral palette.',
+    coverSrc: '/templates/baby-meadow-v2.webp',
+    accent: '#788d66',
+    surface: '#f6f0df',
+    textColor: '#4d6147',
+    musicName: 'Indian instrumental',
+    nameConnector: ' & ',
+    defaults: {
+      brideName: 'Naina',
+      groomName: 'Rohit',
+      coupleLine: undefined,
+      saveDateTitle: 'Our sweetest story begins',
+      eventLine: 'Baby Shower',
+      date: '07 March 2027 · 11 AM',
+      venueName: 'The Orchard Room, Hyderabad',
+      familyName: 'Hosted by the Suri Family',
+      photoSrc: 'engagement/couple-photo.jpg',
+      musicSrc: 'engagement/indian-instrumental.wav',
+      showPhoto: false,
+      photoFocalPoint: 30,
     },
     fields: babyShowerFields,
   },
@@ -282,6 +411,37 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     },
     fields: housewarmingFields,
   },
+  {
+    id: 'housewarming-aangan',
+    version: 2,
+    compositionId: 'HousewarmingAangan',
+    name: 'Modern Threshold',
+    category: 'housewarming',
+    categoryLabel: 'Housewarming',
+    description:
+      'Sandstone, geometric jaali, olive foliage, and architectural late-afternoon light.',
+    coverSrc: '/templates/house-modern-v2.webp',
+    accent: '#8c6542',
+    surface: '#eee4d4',
+    textColor: '#38483c',
+    musicName: 'Indian instrumental',
+    nameConnector: ' & ',
+    defaults: {
+      brideName: 'Aditi',
+      groomName: 'Rohan',
+      coupleLine: undefined,
+      saveDateTitle: 'A place of our own',
+      eventLine: 'Housewarming Evening',
+      date: '12 December 2026 · 5 PM',
+      venueName: '18 Banyan Court, Gurugram',
+      familyName: 'With warmth, Aditi & Rohan',
+      photoSrc: 'engagement/venue-photo.jpg',
+      musicSrc: 'engagement/indian-instrumental.wav',
+      showPhoto: false,
+      photoFocalPoint: 42,
+    },
+    fields: housewarmingFields,
+  },
 ];
 
 export const invitationCategories: ReadonlyArray<{
@@ -302,16 +462,58 @@ export const isInvitationTemplateId = (
   typeof value === 'string' &&
   invitationTemplateIds.includes(value as InvitationTemplateId);
 
+export const isInvitationTemplateVersion = (
+  value: unknown,
+): value is InvitationTemplateVersion =>
+  typeof value === 'number' &&
+  invitationTemplateVersions.includes(value as InvitationTemplateVersion);
+
 export const getInvitationTemplate = (
   value: unknown,
-): InvitationTemplateDefinition =>
-  invitationTemplates.find((template) => template.id === value) ??
-  invitationTemplates[0];
+  version?: unknown,
+): InvitationTemplateDefinition => {
+  const matches = invitationTemplates.filter(
+    (template) => template.id === value,
+  );
+  if (matches.length === 0) {
+    return invitationTemplates[0];
+  }
+
+  if (isInvitationTemplateVersion(version)) {
+    return (
+      matches.find((template) => template.version === version) ?? matches[0]
+    );
+  }
+
+  return matches.reduce((latest, template) =>
+    template.version > latest.version ? template : latest,
+  );
+};
+
+export const getInvitationTemplateKey = (
+  templateId: InvitationTemplateId,
+  templateVersion: InvitationTemplateVersion,
+): InvitationTemplateKey => `${templateId}@${templateVersion}`;
+
+export const resolveTemplateAssetSrc = (
+  source: string,
+  assetBaseUrl?: string | null,
+) => {
+  if (/^(data:|blob:|https?:\/\/)/.test(source)) {
+    return source;
+  }
+
+  const baseUrl = assetBaseUrl?.trim().replace(/\/+$/, '');
+  return baseUrl
+    ? `${baseUrl}/${source.replace(/^\/+/, '')}`
+    : source;
+};
 
 export const createTemplateDraft = (
   templateId: InvitationTemplateId,
+  templateVersion?: InvitationTemplateVersion,
 ): InvitationContentProps => ({
-  ...getInvitationTemplate(templateId).defaults,
+  ...getInvitationTemplate(templateId, templateVersion).defaults,
   coupleLine: undefined,
 });
 
@@ -319,8 +521,9 @@ export const validateTemplateProps = (
   templateId: InvitationTemplateId,
   props: EngagementInviteProps,
   options: {requireRequiredFields?: boolean} = {},
+  templateVersion?: InvitationTemplateVersion,
 ): Partial<Record<EngagementTextFieldKey | 'photoSrc', string>> => {
-  const template = getInvitationTemplate(templateId);
+  const template = getInvitationTemplate(templateId, templateVersion);
   const errors: Partial<
     Record<EngagementTextFieldKey | 'photoSrc', string>
   > = {};
@@ -355,8 +558,9 @@ const valueOrDefault = (
 export const resolveTemplateCopy = (
   templateId: InvitationTemplateId,
   props: InvitationContentProps,
+  templateVersion?: InvitationTemplateVersion,
 ) => {
-  const template = getInvitationTemplate(templateId);
+  const template = getInvitationTemplate(templateId, templateVersion);
   const primaryName = valueOrDefault(
     props.brideName,
     template.defaults.brideName,
@@ -407,15 +611,17 @@ export const resolveTemplateCopy = (
 export const templateProjectLabel = (
   templateId: InvitationTemplateId,
   props: InvitationContentProps,
+  templateVersion?: InvitationTemplateVersion,
 ) => {
-  const copy = resolveTemplateCopy(templateId, props);
+  const copy = resolveTemplateCopy(templateId, props, templateVersion);
   return copy.nameLine || copy.eventLine;
 };
 
 export const templateProjectInitials = (
   templateId: InvitationTemplateId,
   props: InvitationContentProps,
+  templateVersion?: InvitationTemplateVersion,
 ) => {
-  const copy = resolveTemplateCopy(templateId, props);
+  const copy = resolveTemplateCopy(templateId, props, templateVersion);
   return `${copy.primaryName.charAt(0)}${copy.secondaryName.charAt(0) || ''}`.toUpperCase();
 };

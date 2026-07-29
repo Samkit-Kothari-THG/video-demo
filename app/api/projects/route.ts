@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from 'next/server';
 import {
   createTemplateDraft,
+  getInvitationTemplate,
   isInvitationTemplateId,
   validateTemplateProps,
 } from '../../../src/templates/catalog';
@@ -25,18 +26,34 @@ export async function POST(request: NextRequest) {
     const templateId = isInvitationTemplateId(body?.templateId)
       ? body.templateId
       : 'engagement-invite';
+    const template = getInvitationTemplate(
+      templateId,
+      body?.templateVersion,
+    );
     const incoming = asProps(body?.props);
     if (!incoming) {
       return NextResponse.json({error: 'A valid invitation payload is required.'}, {status: 400});
     }
 
-    const props = {...createTemplateDraft(templateId), ...incoming};
-    const errors = validateTemplateProps(templateId, props);
+    const props = {
+      ...createTemplateDraft(template.id, template.version),
+      ...incoming,
+    };
+    const errors = validateTemplateProps(
+      template.id,
+      props,
+      {},
+      template.version,
+    );
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({error: 'Please correct the invitation fields.', errors}, {status: 422});
     }
 
-    const project = await createProject(templateId, props);
+    const project = await createProject(
+      template.id,
+      template.version,
+      props,
+    );
     return NextResponse.json({project}, {status: 201});
   } catch {
     return NextResponse.json({error: 'The project could not be created.'}, {status: 500});

@@ -11,14 +11,20 @@ import {
 } from 'remotion';
 import {
   getInvitationTemplate,
+  getInvitationTemplateKey,
+  resolveTemplateAssetSrc,
   resolveTemplateCopy,
   type InvitationTemplateId,
+  type InvitationTemplateKey,
+  type InvitationTemplateVersion,
 } from './catalog';
 import {EngagementInvite} from './engagement/EngagementInvite';
 import type {InvitationContentProps} from './engagement/model';
 
 export type CatalogInvitationProps = InvitationContentProps & {
   templateId?: InvitationTemplateId;
+  templateVersion?: InvitationTemplateVersion;
+  assetBaseUrl?: string | null;
 };
 
 type Theme = {
@@ -34,36 +40,108 @@ type Theme = {
   marker: string;
   serif: string;
   sans: string;
+  frameRadius: number;
+  boldType: boolean;
+  dark: boolean;
+  confetti: boolean;
 };
 
 const motionCopy: Record<
-  Exclude<InvitationTemplateId, 'engagement-invite'>,
+  InvitationTemplateKey,
   {moment: string; details: string; finale: string}
 > = {
-  'wedding-noor': {
+  'engagement-invite@1': {
+    moment: 'A promise in bloom',
+    details: 'Meet us there',
+    finale: 'The next chapter starts here',
+  },
+  'engagement-invite@2': {
+    moment: 'Promises in the rain',
+    details: 'Meet us there',
+    finale: 'The next chapter starts here',
+  },
+  'wedding-noor@1': {
     moment: 'A promise beneath the stars',
     details: 'The celebration',
     finale: 'Two stories, one forever',
   },
-  'birthday-confetti': {
+  'wedding-noor@2': {
+    moment: 'A garden made for forever',
+    details: 'The ceremony',
+    finale: 'A lifetime, beginning softly',
+  },
+  'birthday-confetti@1': {
     moment: 'Your brightest year yet',
     details: 'Party coordinates',
     finale: 'Another trip around the sun',
   },
-  'baby-shower-moon': {
+  'birthday-confetti@2': {
+    moment: 'Dress bright. Stay late.',
+    details: 'After-dark coordinates',
+    finale: 'One luminous year ahead',
+  },
+  'baby-shower-moon@1': {
     moment: 'A little love, already immense',
     details: 'Gather with us',
     finale: 'The sweetest chapter begins',
   },
-  'housewarming-aangan': {
+  'baby-shower-moon@2': {
+    moment: 'A tiny story, already loved',
+    details: 'Join our meadow',
+    finale: 'A beautiful chapter begins',
+  },
+  'housewarming-aangan@1': {
     moment: 'New walls, familiar warmth',
     details: 'Find your way home',
     finale: 'Our door is open. Come home to us.',
   },
+  'housewarming-aangan@2': {
+    moment: 'Made slowly. Filled with love.',
+    details: 'Find our new door',
+    finale: 'Come in. Stay awhile.',
+  },
 };
 
-const themes: Record<Exclude<InvitationTemplateId, 'engagement-invite'>, Theme> = {
-  'wedding-noor': {
+const themes: Record<InvitationTemplateKey, Theme> = {
+  'engagement-invite@1': {
+    background: '#f6ead2',
+    foreground: '#5d3427',
+    muted: '#7c6557',
+    accent: '#7d364a',
+    accentSoft: 'rgba(125,54,74,0.13)',
+    overlay:
+      'linear-gradient(180deg, rgba(255,248,237,0.04), rgba(255,248,237,0.2))',
+    photoBorder: '#b87951',
+    photoRadius: 240,
+    photoRotate: 0,
+    marker: '✦',
+    serif: 'Iowan Old Style, Baskerville, Georgia, serif',
+    sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 520,
+    boldType: false,
+    dark: false,
+    confetti: false,
+  },
+  'engagement-invite@2': {
+    background: '#e9f0eb',
+    foreground: '#24443d',
+    muted: '#668077',
+    accent: '#557f72',
+    accentSoft: 'rgba(85,127,114,0.14)',
+    overlay:
+      'linear-gradient(180deg, rgba(235,244,239,0.06), rgba(235,244,239,0.22))',
+    photoBorder: '#8fac9e',
+    photoRadius: 240,
+    photoRotate: 0,
+    marker: '◇',
+    serif: 'Iowan Old Style, Baskerville, Georgia, serif',
+    sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 520,
+    boldType: false,
+    dark: false,
+    confetti: false,
+  },
+  'wedding-noor@1': {
     background: '#08152c',
     foreground: '#f7ead2',
     muted: '#c8b695',
@@ -77,8 +155,31 @@ const themes: Record<Exclude<InvitationTemplateId, 'engagement-invite'>, Theme> 
     marker: '✦',
     serif: 'Iowan Old Style, Baskerville, Georgia, serif',
     sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 520,
+    boldType: false,
+    dark: true,
+    confetti: false,
   },
-  'birthday-confetti': {
+  'wedding-noor@2': {
+    background: '#fbf5e8',
+    foreground: '#596042',
+    muted: '#85785d',
+    accent: '#a07d3e',
+    accentSoft: 'rgba(160,125,62,0.14)',
+    overlay:
+      'linear-gradient(180deg, rgba(255,250,239,0.04), rgba(255,250,239,0.18))',
+    photoBorder: '#b99450',
+    photoRadius: 240,
+    photoRotate: 0,
+    marker: '✧',
+    serif: 'Iowan Old Style, Baskerville, Georgia, serif',
+    sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 520,
+    boldType: false,
+    dark: false,
+    confetti: false,
+  },
+  'birthday-confetti@1': {
     background: '#fff8ee',
     foreground: '#211e20',
     muted: '#655d60',
@@ -92,8 +193,31 @@ const themes: Record<Exclude<InvitationTemplateId, 'engagement-invite'>, Theme> 
     marker: '✺',
     serif: 'Arial Black, Arial, sans-serif',
     sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 32,
+    boldType: true,
+    dark: false,
+    confetti: true,
   },
-  'baby-shower-moon': {
+  'birthday-confetti@2': {
+    background: '#130d1a',
+    foreground: '#f9f3ff',
+    muted: '#c2accb',
+    accent: '#ff55d8',
+    accentSoft: 'rgba(255,85,216,0.16)',
+    overlay:
+      'linear-gradient(180deg, rgba(8,5,14,0.05), rgba(8,5,14,0.2))',
+    photoBorder: '#7ce9ff',
+    photoRadius: 42,
+    photoRotate: 3,
+    marker: '✦',
+    serif: 'Arial Black, Arial, sans-serif',
+    sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 32,
+    boldType: true,
+    dark: true,
+    confetti: true,
+  },
+  'baby-shower-moon@1': {
     background: '#fbf4e6',
     foreground: '#4d5b52',
     muted: '#7b7b70',
@@ -107,8 +231,31 @@ const themes: Record<Exclude<InvitationTemplateId, 'engagement-invite'>, Theme> 
     marker: '☾',
     serif: 'Iowan Old Style, Baskerville, Georgia, serif',
     sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 520,
+    boldType: false,
+    dark: false,
+    confetti: false,
   },
-  'housewarming-aangan': {
+  'baby-shower-moon@2': {
+    background: '#f6f0df',
+    foreground: '#4d6147',
+    muted: '#78806d',
+    accent: '#799164',
+    accentSoft: 'rgba(121,145,100,0.14)',
+    overlay:
+      'linear-gradient(180deg, rgba(255,251,239,0.04), rgba(255,251,239,0.18))',
+    photoBorder: '#d6a982',
+    photoRadius: 240,
+    photoRotate: 0,
+    marker: '❧',
+    serif: 'Iowan Old Style, Baskerville, Georgia, serif',
+    sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 520,
+    boldType: false,
+    dark: false,
+    confetti: false,
+  },
+  'housewarming-aangan@1': {
     background: '#f1d4b5',
     foreground: '#355344',
     muted: '#725f4c',
@@ -122,6 +269,29 @@ const themes: Record<Exclude<InvitationTemplateId, 'engagement-invite'>, Theme> 
     marker: '⌂',
     serif: 'Iowan Old Style, Baskerville, Georgia, serif',
     sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 18,
+    boldType: false,
+    dark: false,
+    confetti: false,
+  },
+  'housewarming-aangan@2': {
+    background: '#eee4d4',
+    foreground: '#38483c',
+    muted: '#756957',
+    accent: '#8c6542',
+    accentSoft: 'rgba(140,101,66,0.14)',
+    overlay:
+      'linear-gradient(180deg, rgba(250,244,232,0.03), rgba(250,244,232,0.18))',
+    photoBorder: '#9a744d',
+    photoRadius: 26,
+    photoRotate: 0,
+    marker: '⌂',
+    serif: 'Iowan Old Style, Baskerville, Georgia, serif',
+    sans: 'Inter, ui-sans-serif, system-ui, sans-serif',
+    frameRadius: 18,
+    boldType: false,
+    dark: false,
+    confetti: false,
   },
 };
 
@@ -138,9 +308,9 @@ const mediaSource = (source: string | null) => {
     return null;
   }
 
-  return /^(data:|blob:|https?:\/\/|\/)/.test(source)
+  return /^(data:|blob:|https?:\/\/)/.test(source)
     ? source
-    : staticFile(source);
+    : staticFile(source.replace(/^\//, ''));
 };
 
 const Scene: React.FC<{
@@ -161,8 +331,7 @@ const Scene: React.FC<{
 
 const AmbientDetails: React.FC<{
   theme: Theme;
-  templateId: Exclude<InvitationTemplateId, 'engagement-invite'>;
-}> = ({theme, templateId}) => {
+}> = ({theme}) => {
   const frame = useCurrentFrame();
 
   return (
@@ -180,9 +349,8 @@ const AmbientDetails: React.FC<{
               left: x,
               top: y,
               width: size,
-              height: templateId === 'birthday-confetti' ? size * 1.8 : size,
-              borderRadius:
-                templateId === 'birthday-confetti' ? 2 : Math.ceil(size / 2),
+              height: theme.confetti ? size * 1.8 : size,
+              borderRadius: theme.confetti ? 2 : Math.ceil(size / 2),
               opacity: 0.18 + (index % 3) * 0.08,
               background: index % 3 === 0 ? theme.accent : theme.foreground,
               transform: `translateX(${Math.sin((frame + index * 19) / 24) * 18 * direction}px) rotate(${frame * direction + index * 31}deg)`,
@@ -195,13 +363,8 @@ const AmbientDetails: React.FC<{
           position: 'absolute',
           inset: 34,
           border: `1px solid ${theme.accent}`,
-          borderRadius:
-            templateId === 'birthday-confetti'
-              ? 32
-              : templateId === 'housewarming-aangan'
-                ? 18
-                : 520,
-          opacity: templateId === 'housewarming-aangan' ? 0.22 : 0.3,
+          borderRadius: theme.frameRadius,
+          opacity: theme.frameRadius < 20 ? 0.22 : 0.3,
         }}
       />
     </>
@@ -210,17 +373,26 @@ const AmbientDetails: React.FC<{
 
 const CategoryInvitation: React.FC<
   InvitationContentProps & {
-    templateId: Exclude<InvitationTemplateId, 'engagement-invite'>;
+    templateId: InvitationTemplateId;
+    templateVersion: InvitationTemplateVersion;
+    assetBaseUrl?: string | null;
   }
-> = ({templateId, ...props}) => {
+> = ({templateId, templateVersion, assetBaseUrl, ...props}) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
-  const template = getInvitationTemplate(templateId);
-  const copy = resolveTemplateCopy(templateId, props);
-  const sceneCopy = motionCopy[templateId];
-  const theme = themes[templateId];
+  const template = getInvitationTemplate(templateId, templateVersion);
+  const templateKey = getInvitationTemplateKey(
+    template.id,
+    template.version,
+  );
+  const copy = resolveTemplateCopy(template.id, props, template.version);
+  const sceneCopy = motionCopy[templateKey];
+  const theme = themes[templateKey];
   const photoSrc = mediaSource(copy.photoSrc);
   const musicSrc = mediaSource(copy.musicSrc);
+  const coverSrc = mediaSource(
+    resolveTemplateAssetSrc(template.coverSrc, assetBaseUrl),
+  );
   const backgroundScale = interpolate(
     frame,
     [0, durationInFrames],
@@ -253,7 +425,7 @@ const CategoryInvitation: React.FC<
         />
       ) : null}
       <Img
-        src={staticFile(template.coverSrc.replace(/^\//, ''))}
+        src={coverSrc!}
         style={{
           position: 'absolute',
           inset: 0,
@@ -262,13 +434,13 @@ const CategoryInvitation: React.FC<
           objectFit: 'cover',
           transform: `scale(${backgroundScale})`,
           filter:
-            templateId === 'wedding-noor'
+            theme.dark
               ? 'saturate(0.92) brightness(0.88)'
               : 'saturate(0.94) contrast(0.98)',
         }}
       />
       <AbsoluteFill style={{background: theme.overlay}} />
-      <AmbientDetails templateId={templateId} theme={theme} />
+      <AmbientDetails theme={theme} />
 
       <Scene opacity={sceneOpacity(frame, 0, 205)}>
         <div
@@ -312,17 +484,27 @@ const CategoryInvitation: React.FC<
           </div>
           <div
             style={{
+              width: 900,
               marginTop: 38,
               fontFamily: theme.serif,
-              fontSize: templateId === 'birthday-confetti' ? 92 : 88,
-              fontWeight: templateId === 'birthday-confetti' ? 900 : 500,
-              letterSpacing:
-                templateId === 'birthday-confetti' ? '-0.07em' : '-0.035em',
+              fontSize:
+                copy.eventLine.length > 32
+                  ? 64
+                  : copy.eventLine.length > 22
+                    ? 70
+                    : copy.eventLine.length > 16
+                      ? 76
+                      : theme.boldType
+                        ? 88
+                        : 84,
+              fontWeight: theme.boldType ? 900 : 500,
+              letterSpacing: theme.boldType ? '-0.07em' : '-0.035em',
               lineHeight: 0.96,
-              textTransform:
-                templateId === 'birthday-confetti' ? 'uppercase' : 'none',
+              textAlign: 'center',
+              textTransform: theme.boldType ? 'uppercase' : 'none',
+              textWrap: 'balance',
               textShadow:
-                templateId === 'wedding-noor'
+                theme.dark
                   ? '0 15px 40px rgba(0,0,0,0.5)'
                   : '0 4px 22px rgba(255,255,255,0.45)',
             }}
@@ -370,17 +552,16 @@ const CategoryInvitation: React.FC<
               marginTop: 38,
               fontFamily: theme.serif,
               fontSize:
-                templateId === 'birthday-confetti'
+                theme.boldType
                   ? 150
                   : copy.nameLine.length > 24
                     ? 94
                     : 126,
-              fontWeight: templateId === 'birthday-confetti' ? 900 : 500,
-              letterSpacing:
-                templateId === 'birthday-confetti' ? '-0.08em' : '-0.05em',
+              fontWeight: theme.boldType ? 900 : 500,
+              letterSpacing: theme.boldType ? '-0.08em' : '-0.05em',
               lineHeight: 0.94,
               textShadow:
-                templateId === 'wedding-noor'
+                theme.dark
                   ? '0 16px 44px rgba(0,0,0,0.52)'
                   : '0 5px 28px rgba(255,255,255,0.5)',
             }}
@@ -441,7 +622,7 @@ const CategoryInvitation: React.FC<
                 placeItems: 'center',
                 border: `2px solid ${theme.accent}`,
                 borderRadius:
-                  templateId === 'birthday-confetti' ? 52 : '50%',
+                  theme.photoRadius < 100 ? theme.photoRadius + 8 : '50%',
                 color: theme.accent,
                 background: theme.accentSoft,
                 boxShadow: '0 30px 70px rgba(24,18,15,0.14)',
@@ -494,11 +675,21 @@ const CategoryInvitation: React.FC<
           </div>
           <div
             style={{
+              width: 900,
               marginTop: 34,
               fontFamily: theme.serif,
-              fontSize: 62,
+              fontSize:
+                copy.date.length > 30
+                  ? 48
+                  : copy.date.length > 24
+                    ? 52
+                    : copy.date.length > 20
+                      ? 56
+                      : 62,
               fontWeight: 600,
               lineHeight: 1.15,
+              textAlign: 'center',
+              textWrap: 'balance',
             }}
           >
             {copy.date}
@@ -572,27 +763,54 @@ const CategoryInvitation: React.FC<
 
 export const CatalogInvitation: React.FC<CatalogInvitationProps> = ({
   templateId = 'engagement-invite',
+  templateVersion,
+  assetBaseUrl,
   ...props
 }) => {
-  if (templateId === 'engagement-invite') {
+  const template = getInvitationTemplate(templateId, templateVersion);
+
+  if (template.id === 'engagement-invite' && template.version === 1) {
     return <EngagementInvite {...props} />;
   }
 
-  return <CategoryInvitation {...props} templateId={templateId} />;
+  return (
+    <CategoryInvitation
+      {...props}
+      assetBaseUrl={assetBaseUrl}
+      templateId={template.id}
+      templateVersion={template.version}
+    />
+  );
 };
 
 export const WeddingNoor: React.FC<InvitationContentProps> = (props) => (
-  <CategoryInvitation {...props} templateId="wedding-noor" />
+  <CategoryInvitation
+    {...props}
+    templateId="wedding-noor"
+    templateVersion={1}
+  />
 );
 
 export const BirthdayConfetti: React.FC<InvitationContentProps> = (props) => (
-  <CategoryInvitation {...props} templateId="birthday-confetti" />
+  <CategoryInvitation
+    {...props}
+    templateId="birthday-confetti"
+    templateVersion={1}
+  />
 );
 
 export const BabyShowerMoon: React.FC<InvitationContentProps> = (props) => (
-  <CategoryInvitation {...props} templateId="baby-shower-moon" />
+  <CategoryInvitation
+    {...props}
+    templateId="baby-shower-moon"
+    templateVersion={1}
+  />
 );
 
 export const HousewarmingAangan: React.FC<InvitationContentProps> = (props) => (
-  <CategoryInvitation {...props} templateId="housewarming-aangan" />
+  <CategoryInvitation
+    {...props}
+    templateId="housewarming-aangan"
+    templateVersion={1}
+  />
 );

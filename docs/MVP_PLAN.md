@@ -210,7 +210,7 @@ an export must not change a render already in progress.
 
 ### Milestone 0 — Template hardening — complete
 
-- Separate production templates from legacy demos.
+- Keep the composition registry limited to production templates.
 - Define and validate a formal engagement-invite prop model.
 - Make individual names drive the displayed couple line.
 - Add text fitting and maximum-length rules.
@@ -220,7 +220,7 @@ an export must not change a render already in progress.
 **Exit criterion:** The template renders correctly with short names, long
 names, no photo, and each supported music option.
 
-### Milestone 1 — Local editor prototype — complete
+### Milestone 1 — Local editor MVP — complete
 
 - Add the web application shell.
 - Add the template gallery and project editor.
@@ -312,30 +312,17 @@ ship a public music library without documented usage rights.
 Do not add free-form editing until data shows that structured controls prevent
 users from completing invitations.
 
-## Suggested next implementation slice
-
-Build Milestone 0 followed by a single-page local editor:
-
-1. Add the versioned `EngagementInvite` template definition.
-2. Add runtime input validation and text fitting.
-3. Add a browser preview driven by editor state.
-4. Add photo upload and focal-point selection.
-5. Save project JSON locally.
-
-This creates a complete product-shaped prototype before committing to accounts,
-payments, queues, or cloud rendering.
-
 ## Current implementation
 
-The repository now includes a local Next.js implementation of the product
-shape described above:
+The repository includes a local Next.js implementation of the MVP:
 
 - The App Router hosts the editor at `/`.
+- The catalogue provides five versioned invitation templates.
 - Projects are persisted in local JSON records.
 - Image uploads are validated and stored as render-safe assets.
 - Render requests create immutable job snapshots and expose polling status.
 - A local Remotion worker renders completed MP4 files for download.
-- The editor uses the same `EngagementInvite` component for preview and render.
+- The editor and renderer resolve each selected template from the same catalogue.
 
 This is intentionally a **single-user local server**. Authentication, database
 migrations, private object storage, a durable queue, payment handling, and

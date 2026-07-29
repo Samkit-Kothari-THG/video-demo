@@ -14,12 +14,7 @@
     "render:wedding": "remotion render src/index.ts WeddingNoor out/WeddingNoor.mp4",
     "render:birthday": "remotion render src/index.ts BirthdayConfetti out/BirthdayConfetti.mp4",
     "render:baby-shower": "remotion render src/index.ts BabyShowerMoon out/BabyShowerMoon.mp4",
-    "render:housewarming": "remotion render src/index.ts HousewarmingAangan out/HousewarmingAangan.mp4",
-    "render:hello": "remotion render src/index.ts HelloWorld out/HelloWorld.mp4",
-    "render:launch": "remotion render src/index.ts LaunchDay out/LaunchDay.mp4",
-    "render:intro": "remotion render src/index.ts IntroSequence out/IntroSequence.mp4",
-    "render:fts": "remotion render src/index.ts FirstTimeSpeakers out/FirstTimeSpeakers.mp4",
-    "render:webslinger": "remotion render src/index.ts WebSlingerIntro out/WebSlingerIntro.mp4"
+    "render:housewarming": "remotion render src/index.ts HousewarmingAangan out/HousewarmingAangan.mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.499",

@@ -2159,6 +2159,16 @@
 
   .toolRail {
     top: 0;
+    gap: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .toolButton,
+  .toolButtonActive {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 0;
   }
 
   .stage {

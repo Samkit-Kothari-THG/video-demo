@@ -27,11 +27,23 @@ export const renderInvitation = async (job: RenderJob) => {
   try {
     await updateRenderJob(job.id, {status: 'rendering', progress: 1, error: null});
     const serveUrl = await getServeUrl();
-    const template = getInvitationTemplate(job.templateId);
+    const template = getInvitationTemplate(
+      job.templateId,
+      job.templateVersion,
+    );
+    const inputProps = {
+      ...job.propsSnapshot,
+      templateId: template.id,
+      templateVersion: template.version,
+      assetBaseUrl:
+        process.env.TEMPLATE_ASSET_BASE_URL ??
+        process.env.NEXT_PUBLIC_TEMPLATE_ASSET_BASE_URL ??
+        null,
+    };
     const composition = await selectComposition({
       serveUrl,
       id: template.compositionId,
-      inputProps: job.propsSnapshot,
+      inputProps,
     });
     const rendersDirectory = path.join(process.cwd(), 'public', 'renders');
     await mkdir(rendersDirectory, {recursive: true});
@@ -40,7 +52,7 @@ export const renderInvitation = async (job: RenderJob) => {
     await renderMedia({
       codec: 'h264',
       composition,
-      inputProps: job.propsSnapshot,
+      inputProps,
       outputLocation: path.join(rendersDirectory, fileName),
       overwrite: true,
       serveUrl,

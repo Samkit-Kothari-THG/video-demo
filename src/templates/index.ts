@@ -9,10 +9,14 @@ export {
 export {
   createTemplateDraft,
   getInvitationTemplate,
+  getInvitationTemplateKey,
   invitationCategories,
   invitationTemplateIds,
+  invitationTemplateVersions,
   invitationTemplates,
   isInvitationTemplateId,
+  isInvitationTemplateVersion,
+  resolveTemplateAssetSrc,
   resolveTemplateCopy,
   templateProjectInitials,
   templateProjectLabel,
@@ -21,5 +25,7 @@ export {
   type InvitationTemplateDefinition,
   type InvitationTemplateField,
   type InvitationTemplateId,
+  type InvitationTemplateKey,
+  type InvitationTemplateVersion,
 } from './catalog';
 export * from './engagement';

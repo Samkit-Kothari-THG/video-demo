@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {mkdir, readFile, rename, writeFile} from 'node:fs/promises';
 import path from 'node:path';
+import {isInvitationTemplateVersion} from '../templates/catalog';
 import type {RenderJob, ProjectRecord} from './types';
 
 const dataDirectory = path.join(process.cwd(), '.data');
@@ -39,18 +40,36 @@ const writeCollection = async <T>(file: string, records: T[]) => {
 
 const now = () => new Date().toISOString();
 
+const normalizeProject = (project: ProjectRecord): ProjectRecord => ({
+  ...project,
+  templateVersion: isInvitationTemplateVersion(project.templateVersion)
+    ? project.templateVersion
+    : 1,
+});
+
+const normalizeRenderJob = (job: RenderJob): RenderJob => ({
+  ...job,
+  templateVersion: isInvitationTemplateVersion(job.templateVersion)
+    ? job.templateVersion
+    : 1,
+});
+
 export const listProjects = async () => {
   const projects = await readCollection<ProjectRecord>(projectsFile);
-  return projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return projects
+    .map(normalizeProject)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 };
 
 export const getProject = async (id: string) => {
   const projects = await readCollection<ProjectRecord>(projectsFile);
-  return projects.find((project) => project.id === id) ?? null;
+  const project = projects.find((candidate) => candidate.id === id);
+  return project ? normalizeProject(project) : null;
 };
 
 export const createProject = async (
   templateId: ProjectRecord['templateId'],
+  templateVersion: ProjectRecord['templateVersion'],
   props: ProjectRecord['props'],
 ) => {
   return withWriteLock(async () => {
@@ -58,7 +77,7 @@ export const createProject = async (
     const project: ProjectRecord = {
       id: randomUUID(),
       templateId,
-      templateVersion: 1,
+      templateVersion,
       props,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -117,7 +136,8 @@ export const createRenderJob = async (
 
 export const getRenderJob = async (id: string) => {
   const jobs = await readCollection<RenderJob>(renderJobsFile);
-  return jobs.find((job) => job.id === id) ?? null;
+  const job = jobs.find((candidate) => candidate.id === id);
+  return job ? normalizeRenderJob(job) : null;
 };
 
 export const updateRenderJob = async (

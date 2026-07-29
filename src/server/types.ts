@@ -1,10 +1,13 @@
-import type {InvitationTemplateId} from '../templates/catalog';
+import type {
+  InvitationTemplateId,
+  InvitationTemplateVersion,
+} from '../templates/catalog';
 import type {InvitationContentProps} from '../templates/engagement/model';
 
 export type ProjectRecord = {
   id: string;
   templateId: InvitationTemplateId;
-  templateVersion: 1;
+  templateVersion: InvitationTemplateVersion;
   props: InvitationContentProps;
   createdAt: string;
   updatedAt: string;
@@ -16,7 +19,7 @@ export type RenderJob = {
   id: string;
   projectId: string;
   templateId: InvitationTemplateId;
-  templateVersion: 1;
+  templateVersion: InvitationTemplateVersion;
   propsSnapshot: InvitationContentProps;
   status: RenderJobStatus;
   progress: number;

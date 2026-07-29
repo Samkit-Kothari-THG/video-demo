@@ -1,7 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-import {
-  validateTemplateProps,
-} from '../../../../src/templates/catalog';
+import {validateTemplateProps} from '../../../../src/templates/catalog';
 import type {InvitationContentProps} from '../../../../src/templates/engagement/model';
 import {getProject, updateProject} from '../../../../src/server/store';
 
@@ -41,6 +39,7 @@ export async function PATCH(request: NextRequest, {params}: RouteContext) {
       existing.templateId,
       {...existing.props, ...updates},
       {requireRequiredFields: false},
+      existing.templateVersion,
     );
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({error: 'Please correct the invitation fields.', errors}, {status: 422});

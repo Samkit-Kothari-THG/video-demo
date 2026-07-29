@@ -8,6 +8,7 @@ import {
   getInvitationTemplate,
   invitationCategories,
   invitationTemplates,
+  resolveTemplateAssetSrc,
   resolveTemplateCopy,
   templateProjectInitials,
   templateProjectLabel,
@@ -16,6 +17,7 @@ import {
   type InvitationContentProps,
   type InvitationTemplateField,
   type InvitationTemplateId,
+  type InvitationTemplateVersion,
   validateTemplateProps,
 } from '../templates';
 import styles from './InviteEditor.module.css';
@@ -23,7 +25,7 @@ import styles from './InviteEditor.module.css';
 type InviteProject = {
   id: string;
   templateId: InvitationTemplateId;
-  templateVersion: 1;
+  templateVersion: InvitationTemplateVersion;
   createdAt: string;
   updatedAt: string;
   props: InvitationContentProps;
@@ -49,7 +51,13 @@ type ServerState = 'checking' | 'ready' | 'offline';
 const STORAGE_KEY = 'video-invite-studio:workspace:v1';
 const MAX_LOCAL_IMAGE_SIZE = 2_500_000;
 const FLAGSHIP_TEMPLATE_ID: InvitationTemplateId = 'engagement-invite';
-const flagshipTemplate = getInvitationTemplate(FLAGSHIP_TEMPLATE_ID);
+const FLAGSHIP_TEMPLATE_VERSION: InvitationTemplateVersion = 1;
+const TEMPLATE_ASSET_BASE_URL =
+  process.env.NEXT_PUBLIC_TEMPLATE_ASSET_BASE_URL ?? null;
+const flagshipTemplate = getInvitationTemplate(
+  FLAGSHIP_TEMPLATE_ID,
+  FLAGSHIP_TEMPLATE_VERSION,
+);
 
 const editorTabs: ReadonlyArray<{
   id: EditorTab;
@@ -74,15 +82,19 @@ const makeId = () =>
   globalThis.crypto?.randomUUID?.() ??
   `invite-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-const createProject = (templateId: InvitationTemplateId): InviteProject => {
+const createProject = (
+  templateId: InvitationTemplateId,
+  templateVersion?: InvitationTemplateVersion,
+): InviteProject => {
   const now = new Date().toISOString();
+  const template = getInvitationTemplate(templateId, templateVersion);
   return {
     id: makeId(),
-    templateId,
-    templateVersion: 1,
+    templateId: template.id,
+    templateVersion: template.version,
     createdAt: now,
     updatedAt: now,
-    props: createTemplateDraft(templateId),
+    props: createTemplateDraft(template.id, template.version),
   };
 };
 
@@ -110,10 +122,14 @@ const loadWorkspace = (): EditorWorkspace => {
       activeProjectId: parsed.activeProjectId,
       projects: parsed.projects.map((project) => {
         const savedProject = project as InviteProject;
+        const template = getInvitationTemplate(
+          savedProject.templateId,
+          savedProject.templateVersion ?? 1,
+        );
         return {
           ...savedProject,
-          templateId: getInvitationTemplate(savedProject.templateId).id,
-          templateVersion: 1,
+          templateId: template.id,
+          templateVersion: template.version,
         };
       }),
     };
@@ -123,11 +139,19 @@ const loadWorkspace = (): EditorWorkspace => {
 };
 
 const projectLabel = (project: InviteProject) => {
-  return templateProjectLabel(project.templateId, project.props);
+  return templateProjectLabel(
+    project.templateId,
+    project.props,
+    project.templateVersion,
+  );
 };
 
 const projectInitials = (project: InviteProject) => {
-  return templateProjectInitials(project.templateId, project.props);
+  return templateProjectInitials(
+    project.templateId,
+    project.props,
+    project.templateVersion,
+  );
 };
 
 const formatProjectDate = (date: string) =>
@@ -139,17 +163,20 @@ const formatProjectDate = (date: string) =>
 
 const renderCommand = (
   templateId: InvitationTemplateId,
+  templateVersion: InvitationTemplateVersion,
   props: InvitationContentProps,
 ) => {
-  const template = getInvitationTemplate(templateId);
+  const template = getInvitationTemplate(templateId, templateVersion);
   const renderableProps = {
     ...props,
+    templateId: template.id,
+    templateVersion: template.version,
     photoSrc: props.photoSrc?.startsWith('data:')
       ? 'engagement/couple-photo.jpg'
       : props.photoSrc,
   };
 
-  return `npx remotion render src/index.ts ${template.compositionId} out/${template.compositionId}.mp4 --props='${JSON.stringify(renderableProps)}'`;
+  return `npx remotion render src/index.ts ${template.compositionId} out/${template.compositionId}-v${template.version}.mp4 --props='${JSON.stringify(renderableProps)}'`;
 };
 
 const browserMediaSource = (source: string) => {
@@ -220,16 +247,33 @@ export const InviteEditor: React.FC = () => {
   const activeProject = workspace.projects.find(
     (project) => project.id === workspace.activeProjectId,
   );
-  const activeTemplate = getInvitationTemplate(activeProject?.templateId);
+  const activeTemplate = activeProject
+    ? getInvitationTemplate(
+        activeProject.templateId,
+        activeProject.templateVersion,
+      )
+    : flagshipTemplate;
   const props =
-    activeProject?.props ?? createTemplateDraft(activeTemplate.id);
+    activeProject?.props ??
+    createTemplateDraft(activeTemplate.id, activeTemplate.version);
   const details = useMemo(
-    () => resolveTemplateCopy(activeTemplate.id, props),
-    [activeTemplate.id, props],
+    () =>
+      resolveTemplateCopy(
+        activeTemplate.id,
+        props,
+        activeTemplate.version,
+      ),
+    [activeTemplate.id, activeTemplate.version, props],
   );
   const errors = useMemo(
-    () => validateTemplateProps(activeTemplate.id, props),
-    [activeTemplate.id, props],
+    () =>
+      validateTemplateProps(
+        activeTemplate.id,
+        props,
+        {},
+        activeTemplate.version,
+      ),
+    [activeTemplate.id, activeTemplate.version, props],
   );
   const visibleTemplates =
     selectedCategory === 'all'
@@ -395,8 +439,9 @@ export const InviteEditor: React.FC = () => {
 
   const useTemplate = async (
     templateId: InvitationTemplateId = FLAGSHIP_TEMPLATE_ID,
+    templateVersion: InvitationTemplateVersion = FLAGSHIP_TEMPLATE_VERSION,
   ) => {
-    const localProject = createProject(templateId);
+    const localProject = createProject(templateId, templateVersion);
 
     try {
       const response = await fetch('/api/projects', {
@@ -404,6 +449,7 @@ export const InviteEditor: React.FC = () => {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           templateId,
+          templateVersion,
           props: localProject.props,
         }),
       });
@@ -476,6 +522,7 @@ export const InviteEditor: React.FC = () => {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           templateId: activeProject.templateId,
+          templateVersion: activeProject.templateVersion,
           props: activeProject.props,
         }),
       });
@@ -565,7 +612,11 @@ export const InviteEditor: React.FC = () => {
   };
 
   const copyRenderCommand = async () => {
-    const command = renderCommand(activeTemplate.id, props);
+    const command = renderCommand(
+      activeTemplate.id,
+      activeTemplate.version,
+      props,
+    );
     try {
       await navigator.clipboard.writeText(command);
       setToast('Developer render command copied.');
@@ -650,7 +701,9 @@ export const InviteEditor: React.FC = () => {
 
         {screen === 'editor' && activeProject ? (
           <div className={styles.projectIdentity}>
-            <span>{activeTemplate.name}</span>
+            <span>
+              {activeTemplate.name} · V{activeTemplate.version}
+            </span>
             <strong>{projectLabel(activeProject)}</strong>
           </div>
         ) : (
@@ -749,7 +802,12 @@ export const InviteEditor: React.FC = () => {
                 </div>
                 <button
                   className={styles.spotlightButton}
-                  onClick={() => void useTemplate(FLAGSHIP_TEMPLATE_ID)}
+                  onClick={() =>
+                    void useTemplate(
+                      FLAGSHIP_TEMPLATE_ID,
+                      FLAGSHIP_TEMPLATE_VERSION,
+                    )
+                  }
                   type="button"
                 >
                   Use this design
@@ -758,8 +816,11 @@ export const InviteEditor: React.FC = () => {
               </div>
               <div className={styles.templateVisual}>
                 <img
-                  alt="Marigold Reverie engagement invitation"
-                  src="/engagement/luxury-invite-bg.png"
+                  alt={`${flagshipTemplate.name} engagement invitation`}
+                  src={resolveTemplateAssetSrc(
+                    flagshipTemplate.coverSrc,
+                    TEMPLATE_ASSET_BASE_URL,
+                  )}
                 />
                 <div className={styles.templateVisualCopy}>
                   <span>Save the date</span>
@@ -776,7 +837,7 @@ export const InviteEditor: React.FC = () => {
                 <span className={styles.eyebrow}>Design collection</span>
                 <h2>Find a film for the moment</h2>
               </div>
-              <span>5 original motion templates</span>
+              <span>10 original motion templates</span>
             </div>
 
             <div
@@ -806,13 +867,16 @@ export const InviteEditor: React.FC = () => {
                 const templateCopy = resolveTemplateCopy(
                   template.id,
                   template.defaults,
+                  template.version,
                 );
 
                 return (
                   <button
                     className={styles.catalogueCard}
-                    key={template.id}
-                    onClick={() => void useTemplate(template.id)}
+                    key={`${template.id}-${template.version}`}
+                    onClick={() =>
+                      void useTemplate(template.id, template.version)
+                    }
                     style={
                       {
                         '--card-accent': template.accent,
@@ -825,10 +889,13 @@ export const InviteEditor: React.FC = () => {
                     <div className={styles.catalogueArt}>
                       <img
                         alt={`${template.name} ${template.categoryLabel.toLowerCase()} invitation`}
-                        src={template.coverSrc}
+                        src={resolveTemplateAssetSrc(
+                          template.coverSrc,
+                          TEMPLATE_ASSET_BASE_URL,
+                        )}
                       />
                       <span className={styles.catalogueCategory}>
-                        {template.categoryLabel}
+                        {template.categoryLabel} · V{template.version}
                       </span>
                       <div className={styles.catalogueArtCopy}>
                         <small>{templateCopy.openingLine}</small>
@@ -836,6 +903,7 @@ export const InviteEditor: React.FC = () => {
                           {templateProjectInitials(
                             template.id,
                             template.defaults,
+                            template.version,
                           )}
                         </strong>
                         <span>{templateCopy.date}</span>
@@ -878,6 +946,7 @@ export const InviteEditor: React.FC = () => {
                 {workspace.projects.map((project) => {
                   const projectTemplate = getInvitationTemplate(
                     project.templateId,
+                    project.templateVersion,
                   );
 
                   return (
@@ -890,7 +959,10 @@ export const InviteEditor: React.FC = () => {
                       <div className={styles.projectThumb}>
                         <img
                           alt=""
-                          src={projectTemplate.coverSrc}
+                          src={resolveTemplateAssetSrc(
+                            projectTemplate.coverSrc,
+                            TEMPLATE_ASSET_BASE_URL,
+                          )}
                         />
                         <div style={{color: projectTemplate.textColor}}>
                           <span>{projectTemplate.categoryLabel}</span>
@@ -901,7 +973,8 @@ export const InviteEditor: React.FC = () => {
                         <div>
                           <strong>{projectLabel(project)}</strong>
                           <span>
-                            {projectTemplate.name} · Updated{' '}
+                            {projectTemplate.name} · V
+                            {projectTemplate.version} · Updated{' '}
                             {formatProjectDate(project.updatedAt)}
                           </span>
                         </div>
@@ -919,7 +992,7 @@ export const InviteEditor: React.FC = () => {
                 >
                   <span>+</span>
                   <strong>Start another invitation</strong>
-                  <small>Choose from five original designs</small>
+                  <small>Choose from ten original designs</small>
                 </button>
               </div>
             ) : (
@@ -1368,6 +1441,8 @@ export const InviteEditor: React.FC = () => {
                   inputProps={{
                     ...props,
                     templateId: activeTemplate.id,
+                    templateVersion: activeTemplate.version,
+                    assetBaseUrl: TEMPLATE_ASSET_BASE_URL,
                   }}
                   loop
                   style={{height: '100%', width: '100%'}}

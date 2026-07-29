@@ -1,13 +1,11 @@
 # Vowframe
 
-A full-stack Next.js and Remotion product concept for creating personalized,
+A full-stack Next.js and Remotion application for creating personalized,
 cinematic video invitations from structured user input.
 
 The current experience includes a filterable template collection, project
 library, guided Story/Photo/Sound editor, live video preview, scene timeline,
-truthful autosave states, and server-rendered MP4 exports. Earlier animation
-experiments remain available under `src/demos` as references for future
-templates.
+truthful autosave states, and server-rendered MP4 exports.
 
 See [the MVP plan](docs/MVP_PLAN.md) for the proposed product scope,
 architecture, milestones, and launch criteria. See
@@ -16,18 +14,19 @@ Remotion behind a template catalogue.
 
 ## Invitation collection
 
-| Category | Template | Composition |
-| --- | --- | --- |
-| Engagement | Marigold Reverie | `EngagementInvite` |
-| Wedding | Noor at Midnight | `WeddingNoor` |
-| Birthday | Electric Confetti | `BirthdayConfetti` |
-| Baby shower | Moonlit Bloom | `BabyShowerMoon` |
-| Housewarming | The New Aangan | `HousewarmingAangan` |
+| Category | V1 | V2 | Composition |
+| --- | --- | --- | --- |
+| Engagement | Marigold Reverie | Monsoon Glass | `EngagementInvite` |
+| Wedding | Noor at Midnight | Ivory Garden | `WeddingNoor` |
+| Birthday | Electric Confetti | Disco After Dark | `BirthdayConfetti` |
+| Baby shower | Moonlit Bloom | Storybook Meadow | `BabyShowerMoon` |
+| Housewarming | The New Aangan | Modern Threshold | `HousewarmingAangan` |
 
-Every design has original portrait artwork, category-specific field labels,
-motion copy, colour, typography, photo treatment, defaults, and validation.
-The same template definition drives the library, editor, Player preview,
-project record, and server render.
+All ten editions have original portrait artwork, category-specific field
+labels, motion copy, colour, typography, photo treatment, defaults, and
+validation. The same versioned template definition drives the library, editor,
+Player preview, project record, and server render. Existing projects remain
+pinned to V1; a newly selected gallery card records its exact edition.
 
 ## Project structure
 
@@ -46,15 +45,11 @@ src/
   server/                           Local project store and render worker
   templates/
     catalog.ts                     Server-safe template registry and schemas
-    CategoryInvitation.tsx         Wedding, birthday, baby, and home films
+    CategoryInvitation.tsx         Versioned category motion system
     engagement/
       EngagementInvite.tsx        Production invitation template
       model.ts                     Props, defaults, and input resolution
       index.ts                     Template exports
-  demos/
-    legacyCompositions.tsx         Early Remotion experiments
-    webSlinger.tsx                 Procedural animation experiment
-    index.ts                       Demo exports
 public/
   engagement/                      Invitation images and audio
   templates/                       Original category artwork
@@ -74,9 +69,33 @@ Open [http://localhost:3000](http://localhost:3000). The Next.js application
 includes the template gallery, guided editor, live Remotion preview,
 server-backed projects, image uploads, render-job status, and MP4 downloads.
 
+## Optional Git-hosted template artwork
+
+Files under `public/` are static assets and are not bundled into the client
+JavaScript. By default, Vowframe serves the optimized WebP covers locally and
+loads only the artwork a page or composition requests.
+
+The same catalogue can instead resolve template artwork from a Git-backed
+origin. Copy `.env.example` to `.env.local` and set both variables to the
+commit-pinned URL of the repository's `public/` directory:
+
+```bash
+NEXT_PUBLIC_TEMPLATE_ASSET_BASE_URL=https://raw.githubusercontent.com/ORG/REPO/COMMIT_SHA/public
+TEMPLATE_ASSET_BASE_URL=https://raw.githubusercontent.com/ORG/REPO/COMMIT_SHA/public
+```
+
+The public variable is used by gallery cards and the embedded Player. The
+server variable is used by deterministic MP4 renders. Leave both blank for the
+local fallback. Use a commit SHA rather than a mutable branch name so old
+projects always render against the artwork version they selected.
+
+Git hosting is convenient for this MVP catalogue. For a commercial hosted
+release, move artwork to object storage behind a CDN while retaining the same
+base-URL contract.
+
 ## Local server implementation
 
-For this prototype, the server uses local disk so the whole MVP can run without
+For local development, the server uses disk so the whole MVP can run without
 external accounts:
 
 | Concern | Local implementation | Production replacement |
@@ -105,7 +124,7 @@ npm run remotion:studio
 ```
 
 The Next.js app is the primary editor. Studio remains useful for motion design,
-template work, and inspecting the retained experiments. Product editing lives
+template work, and inspecting production compositions. Product editing lives
 only in Next.js so a Remotion Player is never nested inside a Studio
 composition.
 
@@ -125,10 +144,13 @@ npm run render:baby-shower
 npm run render:housewarming
 ```
 
-Pass personalized content to any script:
+The scripts render the latest edition (currently V2). Pass personalized
+content and an explicit version when reproducing a saved project:
 
 ```bash
 npm run render:wedding -- --props='{
+  "templateId": "wedding-noor",
+  "templateVersion": 1,
   "brideName": "Priya",
   "groomName": "Rahul",
   "date": "12 December 2026 · 6 PM",
@@ -159,19 +181,6 @@ Supported invitation props:
 | `showPhoto` | `boolean` | Enables or hides the couple photo |
 
 Rendered files are written to `out/`.
-
-## Legacy demo renders
-
-The legacy scripts remain available while their useful animation techniques are
-gradually extracted into reusable template components:
-
-```bash
-npm run render:hello
-npm run render:launch
-npm run render:intro
-npm run render:fts
-npm run render:webslinger
-```
 
 ## Verification
 

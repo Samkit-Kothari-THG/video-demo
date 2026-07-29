@@ -67,7 +67,9 @@ const mediaSource = (source: string | null) => {
     return null;
   }
 
-  return /^(data:|blob:|https?:\/\/|\/)/.test(source) ? source : staticFile(source);
+  return /^(data:|blob:|https?:\/\/)/.test(source)
+    ? source
+    : staticFile(source.replace(/^\//, ''));
 };
 
 export const EngagementInvite: React.FC<EngagementInviteProps> = (props) => {

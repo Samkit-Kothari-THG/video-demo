@@ -18,7 +18,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({error: 'Project not found.'}, {status: 404});
     }
 
-    const errors = validateTemplateProps(project.templateId, project.props);
+    const errors = validateTemplateProps(
+      project.templateId,
+      project.props,
+      {},
+      project.templateVersion,
+    );
     if (Object.keys(errors).length > 0) {
       return NextResponse.json(
         {error: 'Complete the required invitation details before rendering.', errors},

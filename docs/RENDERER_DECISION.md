@@ -17,10 +17,9 @@ Remotion already provides both through
 [the Player](https://www.remotion.dev/docs/player),
 [parameterized compositions](https://www.remotion.dev/docs/parameterized-rendering),
 and [`renderMedia()`](https://www.remotion.dev/docs/renderer/render-media).
-The earlier Player exception was an integration error: `getInputProps()` is
-valid at the Remotion composition root, while an embedded Player must receive
-its values through the component's React props. The current architecture keeps
-those two paths separate.
+The composition root receives input through `getInputProps()`, while an
+embedded Player receives values through the component's React props. The
+architecture keeps those two paths separate.
 
 ## Alternatives considered
 

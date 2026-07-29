@@ -10,7 +10,9 @@ truthful autosave states, and server-rendered MP4 exports.
 See [the MVP plan](docs/MVP_PLAN.md) for the proposed product scope,
 architecture, milestones, and launch criteria. See
 [the renderer decision](docs/RENDERER_DECISION.md) for why the app retains
-Remotion behind a template catalogue.
+Remotion behind a template catalogue. See
+[the expansion roadmap](docs/roadmap/README.md) for sequential, implementation-
+ready work packets covering the first three post-MVP phases.
 
 ## Invitation collection
 
@@ -56,6 +58,7 @@ public/
 docs/
   MVP_PLAN.md                      Product and delivery plan
   RENDERER_DECISION.md             Rendering stack evaluation
+  roadmap/                          Sequential Phase 1–3 work packets
 ```
 
 ## Run the Next.js app

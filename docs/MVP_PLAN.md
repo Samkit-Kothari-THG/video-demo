@@ -95,7 +95,8 @@ These can be reconsidered after the structured workflow proves useful.
 
 The local MVP now includes:
 
-- Five versioned templates with original artwork and category-specific schemas.
+- Five template families and ten pinned editions with original artwork and
+  category-specific schemas.
 - A responsive template catalogue and reusable project library.
 - Schema-driven Story, Photo, Sound, and Review tools.
 - Live Remotion Player previews using React props.
@@ -317,7 +318,7 @@ users from completing invitations.
 The repository includes a local Next.js implementation of the MVP:
 
 - The App Router hosts the editor at `/`.
-- The catalogue provides five versioned invitation templates.
+- The catalogue provides five template families across ten pinned editions.
 - Projects are persisted in local JSON records.
 - Image uploads are validated and stored as render-safe assets.
 - Render requests create immutable job snapshots and expose polling status.

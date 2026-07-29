@@ -3,7 +3,7 @@
 **Status:** Not started  
 **Phase:** 1 — Production foundation  
 **Size:** XL  
-**Depends on:** P1-01 through P1-07
+**Depends on:** P0-04 and P1-01 through P1-07
 
 ## Objective
 
@@ -25,6 +25,8 @@ an explicit go/no-go gate.
 - Threat model and security review.
 - Rate limits, quotas, headers, dependency/license review, and secret handling.
 - Privacy notice inputs, asset retention, deletion, and data export behavior.
+- Verified implementation of the P0-04 data classification, consent,
+  provenance, sharing, and trust constraints applicable to beta.
 - CI/CD for web, migrations, dispatcher, and worker.
 - Staging environment, production canary, rollback, backup, and restore.
 - Load/failure testing and ten-user beta readiness exercise.
@@ -66,6 +68,8 @@ Mitigations become tracked requirements with an owner and verification.
 
 ### Data lifecycle
 
+- Translate the P0-04 classification/retention matrix into implemented
+  lifecycle policy; record any infrastructure exception accurately.
 - Publish/document purposes and retention for account, project, source asset,
   output, logs, analytics, and audit data.
 - Account deletion revokes sessions, hides data immediately, and schedules
@@ -116,6 +120,8 @@ Mitigations become tracked requirements with an owner and verification.
 - [ ] No critical/high unresolved threat lacks an approved mitigation.
 - [ ] Secrets and private URLs are absent from client bundles and logs.
 - [ ] Backup restore and account/asset deletion are exercised successfully.
+- [ ] P0-04 private defaults, provenance, retention, deletion, and sharing
+      constraints are implemented or explicitly block the affected capability.
 - [ ] Every accepted render terminates or reconciles within policy.
 - [ ] Staging-to-production and rollback procedures are demonstrated.
 - [ ] Alerts and support runbooks work during failure exercises.
@@ -166,6 +172,7 @@ storage or bypass authorization.
 | Migration cannot be rolled back cleanly | Additive schema and compatible prior release |
 | Data deletion conflicts with active job | Revoke access, cancel/protect references, then durable cleanup |
 | Third-party license blocks launch | Resolve or replace asset/dependency before gate |
+| Policy promise exceeds implemented lifecycle | Gate on verified behavior and publish accurate windows |
 
 ## Completion evidence
 

@@ -3,7 +3,7 @@
 **Status:** Not started  
 **Phase:** 1 — Production foundation  
 **Size:** M  
-**Depends on:** Current local MVP
+**Depends on:** Phase 0 gate and current local MVP
 
 ## Objective
 
@@ -34,6 +34,8 @@ interfaces would create mixed storage modes and difficult rollbacks.
 - Establish request/correlation identifiers and UTC timestamp conventions.
 - Record architecture decisions for database access, authentication category,
   storage protocol, queue category, and deployment topology.
+- Consume P0-03 latency/cost/quota budgets and P0-04 data, retention, and
+  sharing constraints as architecture inputs.
 
 ### Excluded
 
@@ -134,6 +136,8 @@ Expected configuration groups:
 - [ ] Liveness works when dependencies are unavailable; readiness does not.
 - [ ] Every API request and render dispatch receives a correlation identifier.
 - [ ] ADRs record decisions and rejected alternatives.
+- [ ] Architecture configuration can express the approved P0-03 budgets and
+      P0-04 lifecycle constraints without editor/template constants.
 
 ## Test plan
 

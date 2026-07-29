@@ -3,13 +3,14 @@
 **Status:** Not started  
 **Phase:** 2 — Better creation experience  
 **Size:** L  
-**Depends on:** Phase 1 gate
+**Depends on:** Phase 1 gate, P0-01, P0-02
 
 ## Objective
 
 Give first-time users a short, guided path from occasion selection to a
 complete, populated invitation draft without requiring them to understand the
-full editor.
+full editor. Optimize for the primary user, core job, and first-value moment
+selected in P0-01.
 
 ## Why this packet exists
 
@@ -30,6 +31,8 @@ reduces empty or confusing editor states.
 - Populated version-pinned project using existing catalogue defaults and
   validation.
 - Funnel analytics and accessible progress/navigation.
+- Direct traceability from each question/step to the P0-01 core journey and
+  P0-02 metric definition.
 
 ### Excluded
 
@@ -71,6 +74,10 @@ Users can move backward without losing data. Leaving the flow preserves a
 server draft for authenticated users and a privacy-safe browser draft only
 before authentication where required.
 
+The number/order of steps and definition of a valid personalized preview must
+start from P0-01/P0-02 evidence. Adding a question requires a named downstream
+decision or validation need; do not turn the brief into a generic event form.
+
 ### Recommendation behavior
 
 - Recommendations are deterministic rules over category, tone, photo
@@ -97,6 +104,7 @@ before authentication where required.
 - Brief-to-template mapping tests.
 - Resume/abandon behavior.
 - Funnel event definitions and content-design copy.
+- Mapping from P0-02 canonical events/activation to guided-flow behavior.
 
 ## Delivery slices
 
@@ -117,6 +125,8 @@ before authentication where required.
 - [ ] All steps work with keyboard and screen-reader navigation.
 - [ ] Analytics identify step completion/drop-off without recording invitation
       text.
+- [ ] The flow reaches the P0-01 first-value outcome and uses the P0-02
+      activation definition without a parallel metric.
 
 ## Test plan
 
@@ -135,6 +145,7 @@ before authentication where required.
 - Interrupt at every step and resume.
 - Test long names/venues and all no-photo paths.
 - Observe five first-time users without coaching.
+- Compare time/completion/failure patterns with the Phase 0 baseline.
 
 ## Operational expectations
 
@@ -158,6 +169,7 @@ already created brief/project records remain valid.
 | Recommendation feels arbitrary | Show a short reason and full-catalogue escape |
 | Date text differs by template | Store structured time plus intentional display string mapping |
 | Brief and project become competing truth | Brief becomes immutable/closed after project creation |
+| New questions dilute first value | Require evidence and a downstream decision for every step |
 
 ## Completion evidence
 

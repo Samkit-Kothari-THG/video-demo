@@ -3,7 +3,7 @@
 **Status:** Not started  
 **Phase:** 1 — Production foundation  
 **Size:** L  
-**Depends on:** P1-02, P1-05
+**Depends on:** P0-02, P0-03, P1-02, P1-05
 
 ## Objective
 
@@ -26,6 +26,8 @@ state of a specific job.
 - Audit events for sensitive operations.
 - Read-only internal support view for project/render diagnosis.
 - Initial service-level indicators and incident runbooks.
+- Production implementation of the canonical P0-02 funnel definitions and
+  P0-03 cost/capacity measurements.
 
 ### Excluded
 
@@ -75,6 +77,20 @@ Product analytics:
 - output downloaded and preview link opened.
 
 Events use anonymous/user surrogate IDs and avoid raw invitation values.
+Names, meanings, allowed properties, deduplication, and authoritative
+client/server source must consume the P0-02 event contract rather than create a
+second taxonomy.
+
+Unit-economics telemetry:
+
+- render compute/attempt duration and successful-output boundary;
+- output/source bytes stored and delivered;
+- retry/cancel/reconciliation cost contributors;
+- queue/worker capacity against the P0-03 envelope;
+- provider-neutral cost inputs exportable to the versioned cost model.
+
+Cost metrics use template/version/format/duration dimensions where bounded, not
+user or project identifiers.
 
 ### Support view
 
@@ -106,6 +122,7 @@ Targets become enforceable only after baseline measurement is available.
 - Structured logger and trace propagation.
 - Metrics instrumentation and dashboard definitions.
 - Product event schema and analytics adapter.
+- Cost/capacity dashboard and P0-03 model-export definition.
 - Audit-event persistence.
 - Internal support routes/UI with role policy.
 - Alert definitions and render/upload incident runbooks.
@@ -125,6 +142,9 @@ Targets become enforceable only after baseline measurement is available.
 - [ ] Dashboards show queue, render, upload, and API health by environment.
 - [ ] Alerts fire in controlled dependency/worker failure exercises.
 - [ ] Product funnel events are deduplicated and versioned.
+- [ ] P0-02 activation/funnel metrics are queryable from the canonical event
+      definitions without invitation content.
+- [ ] Actual render/storage/egress drivers can replace P0-03 estimates.
 - [ ] Support can explain a failed job using stable information and a runbook.
 - [ ] Support access is least privilege and audited.
 - [ ] Release and template regressions can be compared from metrics.
@@ -136,6 +156,7 @@ Targets become enforceable only after baseline measurement is available.
 - Logger redaction tests using representative sensitive props and URLs.
 - Trace-context propagation integration test.
 - Analytics schema/required-field and deduplication tests.
+- Cost-unit attribution and bounded-dimension tests.
 - Support-role authorization and audit tests.
 - Alert-query unit checks where supported.
 
@@ -169,9 +190,11 @@ business operations.
 | Analytics duplicates due retries | Stable event IDs and server-side deduplication |
 | Support view expands into admin backdoor | Read-only default, explicit actions, audit, separate role |
 | Renderer stack contains user data | Redact before export and restrict diagnostic access |
+| Production event names drift from validation | P0-02 dictionary is authoritative and versioned |
+| Cost dashboard attributes retries incorrectly | Separate attempts, successful outputs, and reservations |
 
 ## Completion evidence
 
 Provide trace examples, privacy/redaction test output, dashboard and alert
 screenshots, funnel event samples, support diagnosis exercise, and runbook
-links.
+links, plus the first actual-versus-P0-03 cost comparison.

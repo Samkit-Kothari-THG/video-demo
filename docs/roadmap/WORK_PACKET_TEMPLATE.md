@@ -1,9 +1,9 @@
 # PX-00 — Work packet title
 
-**Status:** Not started  
-**Phase:** Phase name  
-**Size:** M / L / XL  
-**Depends on:** Packet IDs or current system capability
+- **Status:** Not started / Parked
+- **Phase:** Phase name
+- **Size:** M / L / XL
+- **Depends on:** Packet IDs or current system capability
 
 ## Objective
 

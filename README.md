@@ -12,7 +12,8 @@ architecture, milestones, and launch criteria. See
 [the renderer decision](docs/RENDERER_DECISION.md) for why the app retains
 Remotion behind a template catalogue. See
 [the expansion roadmap](docs/roadmap/README.md) for sequential, implementation-
-ready work packets covering the first three post-MVP phases.
+ready work packets from product validation through publishing, plus the
+separately gated AI-assistance track.
 
 ## Invitation collection
 
@@ -58,7 +59,7 @@ public/
 docs/
   MVP_PLAN.md                      Product and delivery plan
   RENDERER_DECISION.md             Rendering stack evaluation
-  roadmap/                          Sequential Phase 1–3 work packets
+  roadmap/                          Sequential product and exploration packets
 ```
 
 ## Run the Next.js app

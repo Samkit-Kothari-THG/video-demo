@@ -3,7 +3,7 @@
 **Status:** Not started  
 **Phase:** 2 — Better creation experience  
 **Size:** XL  
-**Depends on:** P2-01 through P2-07
+**Depends on:** P0-02 and P2-01 through P2-07
 
 ## Objective
 
@@ -97,6 +97,8 @@ At least ten representative first-time users attempt:
 6. share preview or request output.
 
 No developer may manipulate the database or shell to complete a normal case.
+Recruitment, task wording, activation, and severity definitions reuse P0-02 so
+the gate can compare the production experience with the Phase 0 baseline.
 
 ## Expected code and artifacts
 
@@ -124,6 +126,8 @@ No developer may manipulate the database or shell to complete a normal case.
 - [ ] Player and representative final outputs contain identical content/layout.
 - [ ] At least 8 of 10 first-time testers complete without developer help.
 - [ ] No repeated severity-one usability blocker remains.
+- [ ] P0-02 activation and time-to-first-value improve or an evidence-backed
+      explanation and follow-up owner is accepted.
 - [ ] Gate owner records decision, evidence, and follow-ups.
 
 ## Test plan
@@ -171,4 +175,5 @@ edit but must preserve.
 ## Completion evidence
 
 Attach audit and matrix results, profiles, recovery recordings, parity outputs,
-tester completion data, fixed-issue list, and signed Phase 2 gate.
+tester completion data, P0-02 baseline comparison, fixed-issue list, and signed
+Phase 2 gate.

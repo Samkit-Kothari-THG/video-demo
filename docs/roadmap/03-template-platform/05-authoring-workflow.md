@@ -3,7 +3,7 @@
 **Status:** Not started  
 **Phase:** 3 — Template platform  
 **Size:** XL  
-**Depends on:** P3-02, P3-04
+**Depends on:** P3-02, P3-04, P0-04
 
 ## Objective
 

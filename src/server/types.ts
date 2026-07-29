@@ -1,10 +1,11 @@
-import type {EngagementInviteProps} from '../templates/engagement/model';
+import type {InvitationTemplateId} from '../templates/catalog';
+import type {InvitationContentProps} from '../templates/engagement/model';
 
 export type ProjectRecord = {
   id: string;
-  templateId: 'engagement-invite';
+  templateId: InvitationTemplateId;
   templateVersion: 1;
-  props: EngagementInviteProps;
+  props: InvitationContentProps;
   createdAt: string;
   updatedAt: string;
 };
@@ -14,9 +15,9 @@ export type RenderJobStatus = 'queued' | 'rendering' | 'completed' | 'failed';
 export type RenderJob = {
   id: string;
   projectId: string;
-  templateId: 'engagement-invite';
+  templateId: InvitationTemplateId;
   templateVersion: 1;
-  propsSnapshot: EngagementInviteProps;
+  propsSnapshot: InvitationContentProps;
   status: RenderJobStatus;
   progress: number;
   outputUrl: string | null;

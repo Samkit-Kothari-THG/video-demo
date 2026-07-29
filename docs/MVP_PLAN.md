@@ -17,10 +17,12 @@ simple enough to use comfortably on a phone.
 
 ## Target user and first use case
 
-**Primary user:** Someone creating an engagement or wedding invitation for
-sharing through WhatsApp, Instagram, or a direct link.
+**Primary user:** Someone creating an engagement, wedding, birthday, baby
+shower, or housewarming invitation for sharing through WhatsApp, Instagram, or
+a direct link.
 
-**Initial template:** `EngagementInvite`, 30 seconds, portrait 1080×1920.
+**Initial collection:** Five 30-second, portrait 1080×1920 invitation films:
+engagement, wedding, birthday, baby shower, and housewarming.
 
 **Core job:** Produce a personalized invitation in less than five minutes
 without requiring video-editing knowledge.
@@ -29,9 +31,10 @@ without requiring video-editing knowledge.
 
 ### Template gallery
 
-- Show one production-ready template and up to two visual variants.
+- Show five production-ready, category-specific templates.
 - Preview each template with sample data.
 - Clearly show duration and output aspect ratio.
+- Filter the collection by occasion.
 
 ### Guided editor
 
@@ -88,10 +91,29 @@ The MVP will not include:
 
 These can be reconsidered after the structured workflow proves useful.
 
+## Current implementation status
+
+The local MVP now includes:
+
+- Five versioned templates with original artwork and category-specific schemas.
+- A responsive template catalogue and reusable project library.
+- Schema-driven Story, Photo, Sound, and Review tools.
+- Live Remotion Player previews using React props.
+- Browser draft fallback plus server-backed autosave and duplicate.
+- Validated image uploads and focal-point control.
+- Snapshot-based render jobs, progress polling, and MP4 downloads.
+- A server-safe catalogue boundary shared by API and render worker.
+
+Hosted production infrastructure remains intentionally separate: identity,
+PostgreSQL, object storage, a durable render queue, billing, analytics, and
+monitoring are the next launch milestone. The local JSON store and in-process
+worker demonstrate the complete workflow but are not positioned as multi-user
+infrastructure.
+
 ## User journey
 
 1. The user opens the template gallery.
-2. They choose the engagement invitation.
+2. They filter by occasion and choose a design.
 3. A project is created using versioned template defaults.
 4. The editor generates fields from the template schema.
 5. Changes update the browser preview immediately.
@@ -186,7 +208,7 @@ an export must not change a render already in progress.
 
 ## Delivery milestones
 
-### Milestone 0 — Template hardening
+### Milestone 0 — Template hardening — complete
 
 - Separate production templates from legacy demos.
 - Define and validate a formal engagement-invite prop model.
@@ -198,7 +220,7 @@ an export must not change a render already in progress.
 **Exit criterion:** The template renders correctly with short names, long
 names, no photo, and each supported music option.
 
-### Milestone 1 — Local editor prototype
+### Milestone 1 — Local editor prototype — complete
 
 - Add the web application shell.
 - Add the template gallery and project editor.
@@ -210,12 +232,12 @@ names, no photo, and each supported music option.
 **Exit criterion:** A test user can personalize and preview an invitation on
 desktop and mobile without touching code.
 
-### Milestone 2 — Rendering pipeline
+### Milestone 2 — Rendering pipeline — local MVP complete
 
-- Add authentication and persistent projects.
-- Add object storage and signed uploads.
-- Add the render queue and worker.
-- Add render progress, retry behavior, and downloadable outputs.
+- Replace the local store with authenticated, persistent projects.
+- Replace public-disk uploads with object storage and signed uploads.
+- Move the in-process renderer to a durable queue and worker.
+- Retain the implemented render progress and downloadable output flow.
 - Record the exact template version used by each render.
 
 **Exit criterion:** A saved project reliably produces a downloadable MP4, and

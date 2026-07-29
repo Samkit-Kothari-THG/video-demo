@@ -2,22 +2,35 @@ import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {bundle} from '@remotion/bundler';
 import {renderMedia, selectComposition} from '@remotion/renderer';
+import {getInvitationTemplate} from '../templates/catalog';
 import {updateRenderJob} from './store';
 import type {RenderJob} from './types';
 
-const getServeUrl = () =>
-  bundle({
-    entryPoint: path.join(process.cwd(), 'src/index.ts'),
-    publicDir: path.join(process.cwd(), 'public'),
-  });
+let serveUrlPromise: ReturnType<typeof bundle> | null = null;
+
+const getServeUrl = () => {
+  if (!serveUrlPromise) {
+    serveUrlPromise = bundle({
+      entryPoint: path.join(process.cwd(), 'src/index.ts'),
+      publicDir: path.join(process.cwd(), 'public'),
+      enableCaching: false,
+    }).catch((error) => {
+      serveUrlPromise = null;
+      throw error;
+    });
+  }
+
+  return serveUrlPromise;
+};
 
 export const renderInvitation = async (job: RenderJob) => {
   try {
     await updateRenderJob(job.id, {status: 'rendering', progress: 1, error: null});
     const serveUrl = await getServeUrl();
+    const template = getInvitationTemplate(job.templateId);
     const composition = await selectComposition({
       serveUrl,
-      id: 'EngagementInvite',
+      id: template.compositionId,
       inputProps: job.propsSnapshot,
     });
     const rendersDirectory = path.join(process.cwd(), 'public', 'renders');

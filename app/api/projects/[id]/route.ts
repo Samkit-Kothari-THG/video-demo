@@ -1,8 +1,8 @@
 import {NextRequest, NextResponse} from 'next/server';
 import {
-  validateEngagementInviteProps,
-  type EngagementInviteProps,
-} from '../../../../src/templates/engagement/model';
+  validateTemplateProps,
+} from '../../../../src/templates/catalog';
+import type {InvitationContentProps} from '../../../../src/templates/engagement/model';
 import {getProject, updateProject} from '../../../../src/server/store';
 
 export const runtime = 'nodejs';
@@ -10,9 +10,9 @@ export const dynamic = 'force-dynamic';
 
 type RouteContext = {params: Promise<{id: string}>};
 
-const asProps = (value: unknown): Partial<EngagementInviteProps> | null =>
+const asProps = (value: unknown): Partial<InvitationContentProps> | null =>
   value && typeof value === 'object' && !Array.isArray(value)
-    ? (value as Partial<EngagementInviteProps>)
+    ? (value as Partial<InvitationContentProps>)
     : null;
 
 export async function GET(_: NextRequest, {params}: RouteContext) {
@@ -37,7 +37,11 @@ export async function PATCH(request: NextRequest, {params}: RouteContext) {
       return NextResponse.json({error: 'A valid invitation payload is required.'}, {status: 400});
     }
 
-    const errors = validateEngagementInviteProps({...existing.props, ...updates});
+    const errors = validateTemplateProps(
+      existing.templateId,
+      {...existing.props, ...updates},
+      {requireRequiredFields: false},
+    );
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({error: 'Please correct the invitation fields.', errors}, {status: 422});
     }

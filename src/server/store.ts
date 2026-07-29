@@ -49,12 +49,15 @@ export const getProject = async (id: string) => {
   return projects.find((project) => project.id === id) ?? null;
 };
 
-export const createProject = async (props: ProjectRecord['props']) => {
+export const createProject = async (
+  templateId: ProjectRecord['templateId'],
+  props: ProjectRecord['props'],
+) => {
   return withWriteLock(async () => {
     const timestamp = now();
     const project: ProjectRecord = {
       id: randomUUID(),
-      templateId: 'engagement-invite',
+      templateId,
       templateVersion: 1,
       props,
       createdAt: timestamp,

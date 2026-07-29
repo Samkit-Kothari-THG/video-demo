@@ -8,12 +8,22 @@ import {
   WebSlingerIntro,
 } from './demos';
 import {
+  BabyShowerMoon,
+  BirthdayConfetti,
+  createTemplateDraft,
   EngagementInvite,
-  type EngagementInviteProps,
-} from './templates/engagement';
+  HousewarmingAangan,
+  WeddingNoor,
+  type InvitationContentProps,
+  type InvitationTemplateId,
+} from './templates';
 
 export const Root: React.FC = () => {
-  const inputProps = getInputProps<EngagementInviteProps>();
+  const inputProps = getInputProps<InvitationContentProps>();
+  const templateProps = (templateId: InvitationTemplateId) => ({
+    ...createTemplateDraft(templateId),
+    ...inputProps,
+  });
 
   return (
     <>
@@ -25,20 +35,43 @@ export const Root: React.FC = () => {
         fps={30}
         width={1080}
         height={1920}
-        defaultProps={{
-          brideName: inputProps.brideName,
-          groomName: inputProps.groomName,
-          saveDateTitle: inputProps.saveDateTitle,
-          eventLine: inputProps.eventLine,
-          coupleLine: inputProps.coupleLine,
-          date: inputProps.date,
-          venueName: inputProps.venueName,
-          familyName: inputProps.familyName,
-          photoSrc: inputProps.photoSrc,
-          musicSrc: inputProps.musicSrc,
-          showPhoto: inputProps.showPhoto,
-          photoFocalPoint: inputProps.photoFocalPoint,
-        }}
+        defaultProps={templateProps('engagement-invite')}
+      />
+      <Composition
+        id="WeddingNoor"
+        component={WeddingNoor}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={templateProps('wedding-noor')}
+      />
+      <Composition
+        id="BirthdayConfetti"
+        component={BirthdayConfetti}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={templateProps('birthday-confetti')}
+      />
+      <Composition
+        id="BabyShowerMoon"
+        component={BabyShowerMoon}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={templateProps('baby-shower-moon')}
+      />
+      <Composition
+        id="HousewarmingAangan"
+        component={HousewarmingAangan}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={templateProps('housewarming-aangan')}
       />
 
       {/* Legacy visual experiments */}

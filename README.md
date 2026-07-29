@@ -1,22 +1,52 @@
-# Video Invite Studio
+# Vowframe
 
-A full-stack Next.js and Remotion prototype for generating personalized video
-invitations from structured user input.
+A full-stack Next.js and Remotion product concept for creating personalized,
+cinematic video invitations from structured user input.
 
-The current production direction is a focused, mobile-first invitation
-generator. Earlier animation experiments remain available under `src/demos` as
-references for future concept-video templates.
+The current experience includes a filterable template collection, project
+library, guided Story/Photo/Sound editor, live video preview, scene timeline,
+truthful autosave states, and server-rendered MP4 exports. Earlier animation
+experiments remain available under `src/demos` as references for future
+templates.
 
 See [the MVP plan](docs/MVP_PLAN.md) for the proposed product scope,
-architecture, milestones, and launch criteria.
+architecture, milestones, and launch criteria. See
+[the renderer decision](docs/RENDERER_DECISION.md) for why the app retains
+Remotion behind a template catalogue.
+
+## Invitation collection
+
+| Category | Template | Composition |
+| --- | --- | --- |
+| Engagement | Marigold Reverie | `EngagementInvite` |
+| Wedding | Noor at Midnight | `WeddingNoor` |
+| Birthday | Electric Confetti | `BirthdayConfetti` |
+| Baby shower | Moonlit Bloom | `BabyShowerMoon` |
+| Housewarming | The New Aangan | `HousewarmingAangan` |
+
+Every design has original portrait artwork, category-specific field labels,
+motion copy, colour, typography, photo treatment, defaults, and validation.
+The same template definition drives the library, editor, Player preview,
+project record, and server render.
 
 ## Project structure
 
 ```text
+app/
+  api/                              Project, upload, and render routes
+  globals.css                       Global product styles
+  layout.tsx                        App metadata and root layout
+  page.tsx                          Vowframe application entry
 src/
+  editor/
+    InviteEditor.tsx                Project library and guided editor
+    InviteEditor.module.css         Responsive product UI system
   index.ts                         Remotion entry point
   root.tsx                         Composition registry
+  server/                           Local project store and render worker
   templates/
+    catalog.ts                     Server-safe template registry and schemas
+    CategoryInvitation.tsx         Wedding, birthday, baby, and home films
     engagement/
       EngagementInvite.tsx        Production invitation template
       model.ts                     Props, defaults, and input resolution
@@ -27,8 +57,10 @@ src/
     index.ts                       Demo exports
 public/
   engagement/                      Invitation images and audio
+  templates/                       Original category artwork
 docs/
   MVP_PLAN.md                      Product and delivery plan
+  RENDERER_DECISION.md             Rendering stack evaluation
 ```
 
 ## Run the Next.js app
@@ -73,35 +105,42 @@ npm run remotion:studio
 ```
 
 The Next.js app is the primary editor. Studio remains useful for motion design,
-template work, and inspecting the retained experiments. `InviteEditor` can
-still run in Studio with browser-local fallbacks when the Next API is absent.
+template work, and inspecting the retained experiments. Product editing lives
+only in Next.js so a Remotion Player is never nested inside a Studio
+composition.
 
 The package versions are intentionally pinned because Remotion Studio currently
 requires the TypeScript 5 runtime API. Avoid upgrading TypeScript independently
 without checking that the installed Remotion release supports it.
 
-## Render the engagement invitation
+## Render invitation templates
 
-Render with the sample content:
+Render any design with its sample content:
 
 ```bash
 npm run render:engagement
+npm run render:wedding
+npm run render:birthday
+npm run render:baby-shower
+npm run render:housewarming
 ```
 
-Render with personalized content:
+Pass personalized content to any script:
 
 ```bash
-npm run render:engagement -- --props='{
+npm run render:wedding -- --props='{
   "brideName": "Priya",
   "groomName": "Rahul",
-  "date": "12.12.2026",
+  "date": "12 December 2026 · 6 PM",
   "venueName": "The Grand Palace",
   "familyName": "Sharma Family"
 }'
 ```
 
-`coupleLine` is derived from `brideName` and `groomName` unless it is supplied
-explicitly.
+`coupleLine` is derived from the primary and secondary names unless it is
+supplied explicitly. The underlying prop keys remain stable across templates;
+the catalogue supplies category-appropriate labels such as guest of honour,
+parent-to-be, or host.
 
 Supported invitation props:
 
@@ -139,4 +178,5 @@ npm run render:webslinger
 ```bash
 npm run typecheck
 npm run build
+npx remotion compositions src/index.ts
 ```

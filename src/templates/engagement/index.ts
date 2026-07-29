@@ -8,5 +8,6 @@ export {
   type EngagementTextField,
   type EngagementTextFieldKey,
   type EngagementInviteProps,
+  type InvitationContentProps,
   type ResolvedEngagementInviteProps,
 } from './model';

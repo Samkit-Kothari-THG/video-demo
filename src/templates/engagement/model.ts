@@ -1,4 +1,4 @@
-export type EngagementInviteProps = {
+export type InvitationContentProps = {
   brideName?: string;
   groomName?: string;
   saveDateTitle?: string;
@@ -12,6 +12,8 @@ export type EngagementInviteProps = {
   showPhoto?: boolean;
   photoFocalPoint?: number;
 };
+
+export type EngagementInviteProps = InvitationContentProps;
 
 export type ResolvedEngagementInviteProps = {
   brideName: string;
@@ -138,12 +140,14 @@ export const createEngagementInviteDraft = (): EngagementInviteProps => ({
 
 export const validateEngagementInviteProps = (
   props: EngagementInviteProps,
+  options: {requireRequiredFields?: boolean} = {},
 ): Partial<Record<EngagementTextFieldKey | 'photoSrc', string>> => {
   const errors: Partial<Record<EngagementTextFieldKey | 'photoSrc', string>> = {};
+  const requireRequiredFields = options.requireRequiredFields ?? true;
 
   for (const field of engagementInviteTextFields) {
     const value = props[field.key]?.trim() ?? '';
-    if (!field.optional && value.length === 0) {
+    if (requireRequiredFields && !field.optional && value.length === 0) {
       errors[field.key] = `${field.label} is required.`;
     } else if (value.length > field.maxLength) {
       errors[field.key] = `Keep this to ${field.maxLength} characters or fewer.`;

@@ -185,6 +185,22 @@ Supported invitation props:
 
 Rendered files are written to `out/`.
 
+## Original music library
+
+The Sound editor offers five original 30-second cues plus a silent option:
+
+| Track | Suggested use |
+| --- | --- |
+| Golden Hour | Engagement |
+| Moonlit Vows | Wedding |
+| Celebration Afterglow | Birthday |
+| Little Wonder | Baby shower |
+| Morning Courtyard | Housewarming |
+
+The cues are procedurally composed for this project and contain no downloaded
+recordings or third-party samples. Each template selects a suitable default,
+but every track remains available for every invitation.
+
 ## Verification
 
 ```bash

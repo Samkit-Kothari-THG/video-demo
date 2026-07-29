@@ -2,7 +2,7 @@
 
 **Status:** Not started  
 **Phase:** 3 — Template platform  
-**Size:** L  
+**Size:** XL  
 **Depends on:** P3-02, P3-04
 
 ## Objective
@@ -27,6 +27,7 @@ or editing the registry.
 - Asset optimization and metadata checks.
 - Local preview/review route or Studio workflow.
 - Rights/provenance checklist.
+- Localization, font-coverage, and cultural-review checklist.
 - Explicit manual runtime/catalogue registration checklist.
 - Publication handoff and author documentation.
 
@@ -36,6 +37,8 @@ or editing the registry.
 - Automatically publishing generated artwork.
 - Visual drag-and-drop authoring application.
 - Public template marketplace.
+- Claiming support for every language or culture from a single sample render.
+- Automatic translation or transliteration of creator content.
 
 ## Technical specification
 
@@ -70,6 +73,37 @@ Every edition includes:
 
 Fixtures contain licensed/internal test assets and no private user content.
 
+### Localization and cultural review
+
+Each template version declares the locale and script combinations it has
+actually been reviewed to support. A broad category label such as “Indian
+wedding” is not a language-support claim.
+
+- Preserve Unicode end to end and use BCP 47 locale identifiers where locale
+  behavior is declared.
+- Count, truncate, and fit user-visible text by grapheme-aware behavior rather
+  than UTF-16 code units.
+- Avoid forced uppercase, letter spacing, or word-breaking rules for scripts
+  where the treatment is invalid.
+- Isolate user content correctly in bidirectional layouts and test mixed
+  left-to-right/right-to-left strings.
+- Load render-deterministic fonts with documented glyph coverage, license, and
+  fallback order; Player and final render must resolve the same files.
+- Keep stored event times canonical and format dates/times using the chosen
+  locale and event time zone.
+- Treat translation and transliteration as explicit creator-reviewed content,
+  never an invisible template transform.
+
+Required fixtures for every claimed locale/script include representative short
+and long names, combining marks, numerals, date/time, venue text, and fallback
+glyph detection. Templates claiming RTL support also include mirrored-layout
+review where direction affects composition.
+
+Occasion-specific copy, symbols, colors, rituals, family roles, and sequencing
+require a named reviewer familiar with the represented context. Record what
+was reviewed, by whom, and which variations remain outside the claim. One
+reviewer does not certify an entire country, religion, or diaspora.
+
 ### Artwork and assets
 
 - Record source, creator/tool, prompt summary where applicable, license, and
@@ -88,7 +122,8 @@ Fixtures contain licensed/internal test assets and no private user content.
 3. Runtime implementation using primitives/bespoke rationale.
 4. Fixture and local preview review.
 5. Full format/preset regression.
-6. Content, accessibility, rights, and performance review.
+6. Content, localization, cultural, accessibility, rights, and performance
+   review.
 7. Explicit registry entry pull request.
 8. Internal state, then publication through P3-04.
 
@@ -100,14 +135,17 @@ Fixtures contain licensed/internal test assets and no private user content.
 - Asset optimization/inspection command.
 - Local gallery/Studio review surface.
 - Rights/provenance template.
+- Locale/script capability fields, fixture guidance, and glyph-coverage check.
+- Cultural-review record and supported-claim checklist.
 - Manual registration and publication instructions.
 
 ## Delivery slices
 
 1. Document current successful template workflow and required evidence.
 2. Add scaffold and fixture helpers without registry mutation.
-3. Add asset checks and review surface.
-4. Author one new internal edition end to end and refine documentation.
+3. Add asset, font/glyph, locale, and review-surface checks.
+4. Author one new internal edition end to end, including a declared
+   locale/script claim, and refine documentation.
 
 ## Acceptance criteria
 
@@ -118,6 +156,12 @@ Fixtures contain licensed/internal test assets and no private user content.
 - [ ] Preview surface covers every declared format/preset/fixture.
 - [ ] Registration and publication require explicit review.
 - [ ] No fixture contains real private user data.
+- [ ] Locale/script claims are explicit, versioned, and backed by fixtures.
+- [ ] Player and final render use the same licensed font files and fallbacks.
+- [ ] Grapheme, bidirectional, long-copy, and missing-glyph cases fail visibly
+      in validation rather than shipping silently.
+- [ ] Cultural review records a named reviewer, scope, and known limitations.
+- [ ] Templates do not silently translate or transliterate creator input.
 - [ ] One new edition completes the workflow without undocumented steps.
 
 ## Test plan
@@ -128,6 +172,9 @@ Fixtures contain licensed/internal test assets and no private user content.
   tests.
 - Fixture completeness validator tests.
 - Asset dimensions/type/size and baked-text checklist hooks.
+- Font license, glyph-coverage, deterministic-load, and fallback tests.
+- Locale/date/time-zone, grapheme, bidirectional, and mixed-script fixture
+  tests for every declared claim.
 - Manifest/runtime/rights validation.
 - End-to-end test package build.
 
@@ -136,6 +183,10 @@ Fixtures contain licensed/internal test assets and no private user content.
 - A contributor unfamiliar with the implementation follows the guide.
 - Review all fixtures in local gallery/Studio.
 - Inspect generated and sourced asset provenance.
+- Review claimed scripts on real devices and final renders with a qualified
+  language/cultural reviewer.
+- Check date, time, family-role, symbol, ritual, and copy assumptions for each
+  claimed occasion context.
 - Run publication handoff in staging.
 
 ## Operational expectations
@@ -144,6 +195,8 @@ Fixtures contain licensed/internal test assets and no private user content.
 - Runtime assets remain traceable to provenance/rights records.
 - Template production time and review failures are measured.
 - Source art storage and runtime delivery are intentionally separate.
+- Locale/script/cultural claims are searchable by template version and can be
+  withdrawn for new selection without breaking pinned projects.
 
 ## Rollout and rollback
 
@@ -159,8 +212,12 @@ Rollback removes tooling commands, not already published packages or evidence.
 | Automatic registry introduces unwanted templates | Registry remains explicit/manual by design |
 | AI artwork lacks rights/provenance | Required tool/prompt/reviewer record before publication |
 | Fixture matrix becomes burdensome | Generate mechanical cases from schemas, retain human visual review |
+| One localized sample is treated as broad support | Versioned locale/script claims with explicit limits |
+| Font fallback changes layout between Player/render | Ship licensed deterministic fonts and test glyph coverage |
+| Cultural review becomes token approval | Record reviewer scope, dissent, and unsupported variations |
 
 ## Completion evidence
 
 Attach scaffold tests, author guide, contributor trial notes, complete internal
-template package, provenance record, and manual registration review.
+template package, provenance record, locale/glyph evidence, cultural-review
+record, and manual registration review.

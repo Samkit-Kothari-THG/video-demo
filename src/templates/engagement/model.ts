@@ -1,3 +1,5 @@
+import {invitationMusic} from '../music';
+
 export type InvitationContentProps = {
   brideName?: string;
   groomName?: string;
@@ -110,7 +112,7 @@ export const defaultEngagementInviteProps: ResolvedEngagementInviteProps = {
   venueName: 'The Legacy Nasik',
   familyName: 'Bhalgat Family',
   photoSrc: 'engagement/couple-photo.jpg',
-  musicSrc: 'engagement/indian-instrumental.wav',
+  musicSrc: invitationMusic.goldenHour.src,
   showPhoto: true,
   photoFocalPoint: 18,
 };

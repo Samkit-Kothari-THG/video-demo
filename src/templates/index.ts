@@ -28,4 +28,10 @@ export {
   type InvitationTemplateKey,
   type InvitationTemplateVersion,
 } from './catalog';
+export {
+  getInvitationMusicTrack,
+  invitationMusic,
+  invitationMusicTracks,
+  type InvitationMusicTrack,
+} from './music';
 export * from './engagement';

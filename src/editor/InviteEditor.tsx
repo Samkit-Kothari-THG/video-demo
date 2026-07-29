@@ -5,8 +5,10 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {
   CatalogInvitation,
   createTemplateDraft,
+  getInvitationMusicTrack,
   getInvitationTemplate,
   invitationCategories,
+  invitationMusicTracks,
   invitationTemplates,
   resolveTemplateAssetSrc,
   resolveTemplateCopy,
@@ -265,6 +267,7 @@ export const InviteEditor: React.FC = () => {
       ),
     [activeTemplate.id, activeTemplate.version, props],
   );
+  const selectedMusicTrack = getInvitationMusicTrack(details.musicSrc);
   const errors = useMemo(
     () =>
       validateTemplateProps(
@@ -1212,18 +1215,13 @@ export const InviteEditor: React.FC = () => {
                   <div className={styles.nowPlaying}>
                     <div className={styles.albumMark}>♪</div>
                     <div>
-                      <span>
-                        {activeTemplate.musicName
-                          ? 'Featured soundtrack'
-                          : 'Template soundtrack'}
-                      </span>
+                      <span>Selected soundtrack</span>
                       <strong>
-                        {activeTemplate.musicName ?? 'Silent by design'}
+                        {selectedMusicTrack?.name ?? 'Silent by design'}
                       </strong>
                       <small>
-                        {activeTemplate.musicName
-                          ? 'Warm strings · soft percussion · 00:30'
-                          : 'A crisp, editorial film without audio'}
+                        {selectedMusicTrack?.description ??
+                          'A crisp, editorial film without audio'}
                       </small>
                     </div>
                     <i />
@@ -1233,34 +1231,50 @@ export const InviteEditor: React.FC = () => {
                     <i />
                   </div>
 
+                  {selectedMusicTrack ? (
+                    <audio
+                      aria-label={`Preview ${selectedMusicTrack.name}`}
+                      className={styles.audioPreview}
+                      controls
+                      key={selectedMusicTrack.src}
+                      preload="metadata"
+                      src={browserMediaSource(selectedMusicTrack.src)}
+                    />
+                  ) : null}
+
                   <div className={styles.choiceList}>
-                    {activeTemplate.defaults.musicSrc &&
-                    activeTemplate.musicName ? (
+                    {invitationMusicTracks.map((track) => (
                       <label
                         className={
-                          details.musicSrc
+                          details.musicSrc === track.src
                             ? styles.choiceCardActive
                             : styles.choiceCard
                         }
+                        key={track.id}
                       >
                         <input
-                          checked={Boolean(details.musicSrc)}
+                          checked={details.musicSrc === track.src}
                           name="music"
                           onChange={() =>
                             updateProps({
-                              musicSrc: activeTemplate.defaults.musicSrc,
+                              musicSrc: track.src,
                             })
                           }
                           type="radio"
                         />
                         <span className={styles.radioVisual} />
                         <div>
-                          <strong>{activeTemplate.musicName}</strong>
-                          <span>Balanced to sit beneath the invitation.</span>
+                          <strong>{track.name}</strong>
+                          <span>
+                            {track.description}
+                            {track.src === activeTemplate.defaults.musicSrc
+                              ? ' Recommended for this design.'
+                              : ''}
+                          </span>
                         </div>
                         <small>00:30</small>
                       </label>
-                    ) : null}
+                    ))}
 
                     <label
                       className={
@@ -1351,7 +1365,7 @@ export const InviteEditor: React.FC = () => {
                         <strong>Soundtrack</strong>
                         <small>
                           {details.musicSrc
-                            ? `${activeTemplate.musicName ?? 'Soundtrack'} selected`
+                            ? `${selectedMusicTrack?.name ?? 'Soundtrack'} selected`
                             : 'Silent export selected'}
                         </small>
                       </div>

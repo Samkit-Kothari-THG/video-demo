@@ -661,12 +661,13 @@ export const resolveTemplateCopy = (
       ? (template.defaults.musicSrc ?? null)
       : props.musicSrc;
   const musicTrack = getInvitationMusicTrack(musicSrc);
+  const defaultMusicDuration =
+    template.defaults.musicDurationSeconds ?? null;
   const requestedMusicDuration =
-    props.musicDurationSeconds === undefined
-      ? (template.defaults.musicDurationSeconds ??
-        musicTrack?.durationSeconds ??
-        null)
-      : props.musicDurationSeconds;
+    musicTrack?.durationSeconds ??
+    (props.musicDurationSeconds === undefined
+      ? defaultMusicDuration
+      : props.musicDurationSeconds);
   const musicDurationSeconds =
     typeof requestedMusicDuration === 'number' &&
     Number.isFinite(requestedMusicDuration) &&
@@ -674,10 +675,11 @@ export const resolveTemplateCopy = (
       ? requestedMusicDuration
       : null;
   const maximumTrimStart = Math.max(0, (musicDurationSeconds ?? 30) - 30);
-  const requestedTrimStart =
-    props.musicTrimStartSeconds ??
-    template.defaults.musicTrimStartSeconds ??
-    0;
+  const requestedTrimStart = musicTrack
+    ? 0
+    : (props.musicTrimStartSeconds ??
+        template.defaults.musicTrimStartSeconds ??
+        0);
   const musicTrimStartSeconds = Math.min(
     maximumTrimStart,
     Math.max(0, Number.isFinite(requestedTrimStart) ? requestedTrimStart : 0),

@@ -680,9 +680,10 @@ const browserMediaSource = (source: string) => {
 };
 
 const formatAudioTime = (seconds: number) => {
-  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const safeSeconds = Math.max(0, seconds);
   const minutes = Math.floor(safeSeconds / 60);
-  return `${minutes}:${String(safeSeconds % 60).padStart(2, '0')}`;
+  const remainingSeconds = safeSeconds - minutes * 60;
+  return `${minutes}:${remainingSeconds.toFixed(1).padStart(4, '0')}`;
 };
 
 const createWaveform = async (source: string, barCount = 84) => {
@@ -942,7 +943,7 @@ export const InviteEditor: React.FC = () => {
       setGuideStep(savedGuide.step);
       setHasSavedGuide(true);
     }
-    setScreen(savedWorkspace.activeProjectId ? 'editor' : 'library');
+    setScreen('library');
     setIsHydrated(true);
   }, []);
 
@@ -2976,13 +2977,16 @@ export const InviteEditor: React.FC = () => {
                             musicRightsChecked ||
                             details.musicRightsConfirmed
                           }
+                          disabled={hasUploadedMusic}
                           onChange={(event) =>
                             setMusicRightsChecked(event.target.checked)
                           }
                           type="checkbox"
                         />
                         <span>
-                          I own this track or have permission to use it.
+                          {hasUploadedMusic
+                            ? 'Permission confirmed for this upload.'
+                            : 'I own this track or have permission to use it.'}
                         </span>
                       </label>
                     </div>

@@ -20,6 +20,7 @@ export {
   invitationTemplates,
   isInvitationTemplateId,
   isInvitationTemplateVersion,
+  isUploadedMusicSource,
   resolveTemplateAssetSrc,
   resolveTemplateCopy,
   templateProjectInitials,

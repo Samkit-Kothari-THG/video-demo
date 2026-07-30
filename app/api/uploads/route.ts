@@ -129,21 +129,22 @@ const uploadAudio = async (file: File, rightsConfirmed: boolean) => {
     );
   }
 
-  let media: Awaited<ReturnType<typeof parseMedia>>;
-  try {
-    media = await parseMedia({
-      src: new Blob([buffer]),
-      fields: {
-        audioCodec: true,
-        container: true,
-        durationInSeconds: true,
-        tracks: true,
-      },
-      acknowledgeRemotionLicense: true,
-    });
-  } catch {
+  const media = await parseMedia({
+    src: new Blob([buffer]),
+    fields: {
+      audioCodec: true,
+      container: true,
+      durationInSeconds: true,
+      tracks: true,
+    } as const,
+    acknowledgeRemotionLicense: true,
+  }).catch(() => null);
+  if (!media) {
     return NextResponse.json(
-      {error: 'This audio file could not be read. Try another MP3, M4A, or WAV.'},
+      {
+        error:
+          'This audio file could not be read. Try another MP3, M4A, or WAV.',
+      },
       {status: 415},
     );
   }
@@ -158,6 +159,7 @@ const uploadAudio = async (file: File, rightsConfirmed: boolean) => {
     );
   }
   if (
+    typeof durationSeconds !== 'number' ||
     !Number.isFinite(durationSeconds) ||
     durationSeconds <= 0 ||
     durationSeconds > MAX_AUDIO_DURATION_SECONDS
@@ -196,7 +198,12 @@ export async function POST(request: NextRequest) {
     const kind = formData.get('kind') === 'audio' ? 'audio' : 'image';
     if (!(file instanceof File)) {
       return NextResponse.json(
-        {error: kind === 'audio' ? 'Choose music to upload.' : 'Choose an image to upload.'},
+        {
+          error:
+            kind === 'audio'
+              ? 'Choose music to upload.'
+              : 'Choose an image to upload.',
+        },
         {status: 400},
       );
     }

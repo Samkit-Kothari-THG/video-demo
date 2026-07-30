@@ -6,6 +6,7 @@ import {
   validateTemplateProps,
 } from '../../../src/templates/catalog';
 import type {InvitationContentProps} from '../../../src/templates/engagement/model';
+import {isInvitationFormat} from '../../../src/templates/formats';
 import {createProject, listProjects} from '../../../src/server/store';
 
 export const runtime = 'nodejs';
@@ -30,14 +31,31 @@ export async function POST(request: NextRequest) {
       templateId,
       body?.templateVersion,
     );
+    const format = isInvitationFormat(body?.format) ? body.format : 'video';
     const incoming = asProps(body?.props);
     if (!incoming) {
       return NextResponse.json({error: 'A valid invitation payload is required.'}, {status: 400});
     }
 
+    const draft = createTemplateDraft(template.id, template.version);
     const props = {
-      ...createTemplateDraft(template.id, template.version),
+      ...draft,
       ...incoming,
+      musicSrc:
+        format === 'video'
+          ? incoming.musicSrc === undefined
+            ? draft.musicSrc
+            : incoming.musicSrc
+          : null,
+      ...(format === 'video'
+        ? {}
+        : {
+            musicUploadName: null,
+            musicDurationSeconds: null,
+            musicTrimStartSeconds: 0,
+            musicVolume: 1,
+            musicRightsConfirmed: false,
+          }),
     };
     const errors = validateTemplateProps(
       template.id,
@@ -52,6 +70,7 @@ export async function POST(request: NextRequest) {
     const project = await createProject(
       template.id,
       template.version,
+      format,
       props,
     );
     return NextResponse.json({project}, {status: 201});

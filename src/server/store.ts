@@ -2,6 +2,11 @@ import {randomUUID} from 'node:crypto';
 import {mkdir, readFile, rename, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {isInvitationTemplateVersion} from '../templates/catalog';
+import {
+  isInvitationExportType,
+  isInvitationFormat,
+  type InvitationExportType,
+} from '../templates/formats';
 import type {RenderJob, ProjectRecord} from './types';
 
 const dataDirectory = path.join(process.cwd(), '.data');
@@ -45,6 +50,7 @@ const normalizeProject = (project: ProjectRecord): ProjectRecord => ({
   templateVersion: isInvitationTemplateVersion(project.templateVersion)
     ? project.templateVersion
     : 1,
+  format: isInvitationFormat(project.format) ? project.format : 'video',
 });
 
 const normalizeRenderJob = (job: RenderJob): RenderJob => ({
@@ -52,6 +58,10 @@ const normalizeRenderJob = (job: RenderJob): RenderJob => ({
   templateVersion: isInvitationTemplateVersion(job.templateVersion)
     ? job.templateVersion
     : 1,
+  format: isInvitationFormat(job.format) ? job.format : 'video',
+  exportType: isInvitationExportType(job.exportType)
+    ? job.exportType
+    : 'mp4',
 });
 
 export const listProjects = async () => {
@@ -70,6 +80,7 @@ export const getProject = async (id: string) => {
 export const createProject = async (
   templateId: ProjectRecord['templateId'],
   templateVersion: ProjectRecord['templateVersion'],
+  format: ProjectRecord['format'],
   props: ProjectRecord['props'],
 ) => {
   return withWriteLock(async () => {
@@ -78,6 +89,7 @@ export const createProject = async (
       id: randomUUID(),
       templateId,
       templateVersion,
+      format,
       props,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -112,6 +124,7 @@ export const updateProject = async (
 
 export const createRenderJob = async (
   project: ProjectRecord,
+  exportType: InvitationExportType,
 ): Promise<RenderJob> => {
   return withWriteLock(async () => {
     const timestamp = now();
@@ -120,6 +133,8 @@ export const createRenderJob = async (
       projectId: project.id,
       templateId: project.templateId,
       templateVersion: project.templateVersion,
+      format: project.format,
+      exportType,
       propsSnapshot: project.props,
       status: 'queued',
       progress: 0,

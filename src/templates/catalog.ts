@@ -5,7 +5,7 @@ import {
   type EngagementTextFieldKey,
   type InvitationContentProps,
 } from './engagement/model';
-import {invitationMusic} from './music';
+import {getInvitationMusicTrack, invitationMusic} from './music';
 
 export const invitationTemplateIds = [
   'engagement-invite',
@@ -27,6 +27,21 @@ export type InvitationCategory =
   | 'birthday'
   | 'baby-shower'
   | 'housewarming';
+export type InvitationTone =
+  | 'classic'
+  | 'modern'
+  | 'playful'
+  | 'minimal'
+  | 'festive';
+
+export type InvitationValidationField =
+  | EngagementTextFieldKey
+  | 'photoSrc'
+  | 'musicSrc'
+  | 'musicDurationSeconds'
+  | 'musicTrimStartSeconds'
+  | 'musicVolume'
+  | 'musicRightsConfirmed';
 
 export type InvitationTemplateField = {
   key: EngagementTextFieldKey;
@@ -49,6 +64,7 @@ export type InvitationTemplateDefinition = {
   name: string;
   category: InvitationCategory;
   categoryLabel: string;
+  tones: readonly InvitationTone[];
   description: string;
   coverSrc: string;
   accent: string;
@@ -153,6 +169,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Marigold Reverie',
     category: 'engagement',
     categoryLabel: 'Engagement',
+    tones: ['classic', 'festive'],
     description:
       'Warm ivory, marigolds, gilded details, and a cinematic portrait reveal.',
     coverSrc: '/engagement/luxury-invite-bg.png',
@@ -171,13 +188,14 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Monsoon Glass',
     category: 'engagement',
     categoryLabel: 'Engagement',
+    tones: ['modern', 'minimal'],
     description:
       'Rain-softened glass, white roses, silver light, and a modern editorial reveal.',
     coverSrc: '/templates/engagement-monsoon-v2.webp',
     accent: '#426c62',
     surface: '#e9f0eb',
     textColor: '#24443d',
-    musicName: invitationMusic.goldenHour.name,
+    musicName: invitationMusic.monsoonLetters.name,
     nameConnector: ' with ',
     defaults: {
       brideName: 'Tara',
@@ -189,7 +207,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
       venueName: 'The Glasshouse, Alibaug',
       familyName: 'The Iyer & Khanna Families',
       photoSrc: 'engagement/couple-photo.jpg',
-      musicSrc: invitationMusic.goldenHour.src,
+      musicSrc: invitationMusic.monsoonLetters.src,
       showPhoto: true,
       photoFocalPoint: 30,
     },
@@ -202,6 +220,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Noor at Midnight',
     category: 'wedding',
     categoryLabel: 'Wedding',
+    tones: ['classic', 'festive'],
     description:
       'Moonlit palace arches, jasmine, antique gold, and a candlelit portrait moment.',
     coverSrc: '/templates/wedding-noor.webp',
@@ -233,13 +252,14 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Ivory Garden',
     category: 'wedding',
     categoryLabel: 'Wedding',
+    tones: ['classic', 'modern', 'minimal'],
     description:
       'Sunlit ivory stone, jasmine, champagne silk, and a serene garden ceremony.',
     coverSrc: '/templates/wedding-ivory-v2.webp',
     accent: '#9b7c3d',
     surface: '#fbf5e8',
     textColor: '#4e5b3d',
-    musicName: invitationMusic.moonlitVows.name,
+    musicName: invitationMusic.firstLight.name,
     nameConnector: ' & ',
     defaults: {
       brideName: 'Meera',
@@ -251,7 +271,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
       venueName: 'The Courtyard, Udaipur',
       familyName: 'The Rao & Malhotra Families',
       photoSrc: 'engagement/couple-photo.jpg',
-      musicSrc: invitationMusic.moonlitVows.src,
+      musicSrc: invitationMusic.firstLight.src,
       showPhoto: true,
       photoFocalPoint: 30,
     },
@@ -264,13 +284,14 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Electric Confetti',
     category: 'birthday',
     categoryLabel: 'Birthday',
+    tones: ['playful', 'festive'],
     description:
       'Bold paper craft, sculptural balloons, kinetic type, and unapologetic colour.',
     coverSrc: '/templates/birthday-confetti.webp',
     accent: '#1748d5',
     surface: '#fff8ee',
     textColor: '#201d1f',
-    musicName: invitationMusic.celebrationAfterglow.name,
+    musicName: invitationMusic.saffronSkyline.name,
     nameConnector: '',
     defaults: {
       brideName: 'Mira',
@@ -282,7 +303,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
       venueName: 'The Terrace House, Mumbai',
       familyName: 'Hosted with love by friends & family',
       photoSrc: 'engagement/celebration.jpg',
-      musicSrc: invitationMusic.celebrationAfterglow.src,
+      musicSrc: invitationMusic.saffronSkyline.src,
       showPhoto: false,
       photoFocalPoint: 36,
     },
@@ -295,6 +316,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Disco After Dark',
     category: 'birthday',
     categoryLabel: 'Birthday',
+    tones: ['modern', 'playful', 'festive'],
     description:
       'Chrome, midnight plum, iridescent ribbons, and electric after-dark energy.',
     coverSrc: '/templates/birthday-disco-v2.webp',
@@ -326,6 +348,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Moonlit Bloom',
     category: 'baby-shower',
     categoryLabel: 'Baby shower',
+    tones: ['classic', 'minimal'],
     description:
       'Watercolour clouds, a champagne moon, soft botanicals, and an heirloom finish.',
     coverSrc: '/templates/baby-shower-moon.webp',
@@ -357,6 +380,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Storybook Meadow',
     category: 'baby-shower',
     categoryLabel: 'Baby shower',
+    tones: ['modern', 'playful', 'minimal'],
     description:
       'Painterly meadow layers, woodland details, and a soft gender-neutral palette.',
     coverSrc: '/templates/baby-meadow-v2.webp',
@@ -388,6 +412,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'The New Aangan',
     category: 'housewarming',
     categoryLabel: 'Housewarming',
+    tones: ['classic', 'festive'],
     description:
       'Terracotta architecture, morning light, hand-painted craft, and a warm welcome.',
     coverSrc: '/templates/housewarming-aangan.webp',
@@ -419,6 +444,7 @@ export const invitationTemplates: readonly InvitationTemplateDefinition[] = [
     name: 'Modern Threshold',
     category: 'housewarming',
     categoryLabel: 'Housewarming',
+    tones: ['modern', 'minimal'],
     description:
       'Sandstone, geometric jaali, olive foliage, and architectural late-afternoon light.',
     coverSrc: '/templates/house-modern-v2.webp',
@@ -510,6 +536,10 @@ export const resolveTemplateAssetSrc = (
     : source;
 };
 
+export const isUploadedMusicSource = (
+  source: string | null | undefined,
+): boolean => Boolean(source?.startsWith('uploads/audio/'));
+
 export const createTemplateDraft = (
   templateId: InvitationTemplateId,
   templateVersion?: InvitationTemplateVersion,
@@ -523,11 +553,9 @@ export const validateTemplateProps = (
   props: EngagementInviteProps,
   options: {requireRequiredFields?: boolean} = {},
   templateVersion?: InvitationTemplateVersion,
-): Partial<Record<EngagementTextFieldKey | 'photoSrc', string>> => {
+): Partial<Record<InvitationValidationField, string>> => {
   const template = getInvitationTemplate(templateId, templateVersion);
-  const errors: Partial<
-    Record<EngagementTextFieldKey | 'photoSrc', string>
-  > = {};
+  const errors: Partial<Record<InvitationValidationField, string>> = {};
   const requireRequiredFields = options.requireRequiredFields ?? true;
 
   for (const templateField of template.fields) {
@@ -548,6 +576,57 @@ export const validateTemplateProps = (
     errors.photoSrc = 'Choose an image smaller than 2.5 MB for local drafts.';
   }
 
+  const isUploadedMusic = isUploadedMusicSource(props.musicSrc);
+  if (
+    props.musicSrc &&
+    !isUploadedMusic &&
+    !getInvitationMusicTrack(props.musicSrc)
+  ) {
+    errors.musicSrc = 'Choose music from the library or upload a supported file.';
+  }
+
+  if (isUploadedMusic) {
+    if (!props.musicRightsConfirmed) {
+      errors.musicRightsConfirmed =
+        'Confirm that you have permission to use this music.';
+    }
+    if (
+      typeof props.musicDurationSeconds !== 'number' ||
+      !Number.isFinite(props.musicDurationSeconds) ||
+      props.musicDurationSeconds <= 0 ||
+      props.musicDurationSeconds > 600
+    ) {
+      errors.musicDurationSeconds =
+        'The uploaded track must be no longer than 10 minutes.';
+    }
+  }
+
+  if (
+    props.musicTrimStartSeconds !== undefined &&
+    (!Number.isFinite(props.musicTrimStartSeconds) ||
+      props.musicTrimStartSeconds < 0)
+  ) {
+    errors.musicTrimStartSeconds = 'Choose a valid soundtrack start time.';
+  } else if (
+    isUploadedMusic &&
+    typeof props.musicDurationSeconds === 'number' &&
+    typeof props.musicTrimStartSeconds === 'number' &&
+    props.musicTrimStartSeconds >
+      Math.max(0, props.musicDurationSeconds - 30)
+  ) {
+    errors.musicTrimStartSeconds =
+      'The 30-second selection must stay inside the uploaded track.';
+  }
+
+  if (
+    props.musicVolume !== undefined &&
+    (!Number.isFinite(props.musicVolume) ||
+      props.musicVolume < 0 ||
+      props.musicVolume > 1)
+  ) {
+    errors.musicVolume = 'Choose a volume between 0% and 100%.';
+  }
+
   return errors;
 };
 
@@ -566,13 +645,49 @@ export const resolveTemplateCopy = (
     props.brideName,
     template.defaults.brideName,
   );
-  const secondaryName = valueOrDefault(
-    props.groomName,
-    template.defaults.groomName,
+  const secondaryNameIsOptional = template.fields.some(
+    (templateField) =>
+      templateField.key === 'groomName' && templateField.optional,
   );
+  const secondaryName =
+    secondaryNameIsOptional && props.groomName !== undefined
+      ? props.groomName.trim()
+      : valueOrDefault(props.groomName, template.defaults.groomName);
   const automaticNameLine = [primaryName, secondaryName]
     .filter(Boolean)
     .join(template.nameConnector);
+  const musicSrc =
+    props.musicSrc === undefined
+      ? (template.defaults.musicSrc ?? null)
+      : props.musicSrc;
+  const musicTrack = getInvitationMusicTrack(musicSrc);
+  const requestedMusicDuration =
+    props.musicDurationSeconds === undefined
+      ? (template.defaults.musicDurationSeconds ??
+        musicTrack?.durationSeconds ??
+        null)
+      : props.musicDurationSeconds;
+  const musicDurationSeconds =
+    typeof requestedMusicDuration === 'number' &&
+    Number.isFinite(requestedMusicDuration) &&
+    requestedMusicDuration > 0
+      ? requestedMusicDuration
+      : null;
+  const maximumTrimStart = Math.max(0, (musicDurationSeconds ?? 30) - 30);
+  const requestedTrimStart =
+    props.musicTrimStartSeconds ??
+    template.defaults.musicTrimStartSeconds ??
+    0;
+  const musicTrimStartSeconds = Math.min(
+    maximumTrimStart,
+    Math.max(0, Number.isFinite(requestedTrimStart) ? requestedTrimStart : 0),
+  );
+  const requestedMusicVolume =
+    props.musicVolume ?? template.defaults.musicVolume ?? 1;
+  const musicVolume = Math.min(
+    1,
+    Math.max(0, Number.isFinite(requestedMusicVolume) ? requestedMusicVolume : 1),
+  );
 
   return {
     primaryName,
@@ -599,10 +714,15 @@ export const resolveTemplateCopy = (
       props.photoSrc === undefined
         ? (template.defaults.photoSrc ?? null)
         : props.photoSrc,
-    musicSrc:
-      props.musicSrc === undefined
-        ? (template.defaults.musicSrc ?? null)
-        : props.musicSrc,
+    musicSrc,
+    musicUploadName: isUploadedMusicSource(musicSrc)
+      ? (props.musicUploadName?.trim() || 'Uploaded soundtrack')
+      : null,
+    musicDurationSeconds,
+    musicTrimStartSeconds,
+    musicVolume,
+    musicRightsConfirmed:
+      isUploadedMusicSource(musicSrc) && Boolean(props.musicRightsConfirmed),
     showPhoto: props.showPhoto ?? template.defaults.showPhoto ?? true,
     photoFocalPoint:
       props.photoFocalPoint ?? template.defaults.photoFocalPoint ?? 50,

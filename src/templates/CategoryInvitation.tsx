@@ -20,6 +20,7 @@ import {
 } from './catalog';
 import {EngagementInvite} from './engagement/EngagementInvite';
 import type {InvitationContentProps} from './engagement/model';
+import {invitationMusicMixGain} from './music';
 
 export type CatalogInvitationProps = InvitationContentProps & {
   templateId?: InvitationTemplateId;
@@ -417,10 +418,16 @@ const CategoryInvitation: React.FC<
       {musicSrc ? (
         <Audio
           src={musicSrc}
+          trimBefore={Math.round(copy.musicTrimStartSeconds * fps)}
           volume={(audioFrame) => {
             const intro = fadeIn(audioFrame, 0, 28);
             const outro = fadeOut(audioFrame, durationInFrames - 8, 52);
-            return 0.28 * intro * outro;
+            return (
+              invitationMusicMixGain *
+              copy.musicVolume *
+              intro *
+              outro
+            );
           }}
         />
       ) : null}

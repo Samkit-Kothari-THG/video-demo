@@ -4,8 +4,10 @@ import {
   CatalogInvitation,
   createTemplateDraft,
   getInvitationTemplate,
+  ShareableInvitation,
   type CatalogInvitationProps,
   type InvitationTemplateId,
+  type ShareableInvitationProps,
 } from './templates';
 
 export const Root: React.FC = () => {
@@ -72,6 +74,18 @@ export const Root: React.FC = () => {
         width={1080}
         height={1920}
         defaultProps={templateProps('housewarming-aangan')}
+      />
+      <Composition
+        id="ShareableInvitation"
+        component={ShareableInvitation}
+        durationInFrames={180}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{
+          ...(templateProps('engagement-invite') as ShareableInvitationProps),
+          format: 'animated',
+        }}
       />
     </>
   );

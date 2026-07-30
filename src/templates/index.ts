@@ -7,6 +7,10 @@ export {
   type CatalogInvitationProps,
 } from './CategoryInvitation';
 export {
+  ShareableInvitation,
+  type ShareableInvitationProps,
+} from './ShareableInvitation';
+export {
   createTemplateDraft,
   getInvitationTemplate,
   getInvitationTemplateKey,
@@ -27,11 +31,32 @@ export {
   type InvitationTemplateId,
   type InvitationTemplateKey,
   type InvitationTemplateVersion,
+  type InvitationTone,
 } from './catalog';
+export {
+  canExportInvitationAs,
+  getInvitationFormat,
+  invitationExportLabels,
+  invitationFormats,
+  isInvitationExportType,
+  isInvitationFormat,
+  type InvitationExportType,
+  type InvitationFormat,
+} from './formats';
+export {
+  invitationToneOptions,
+  recommendInvitationTemplates,
+  type InvitationPhotoPreference,
+  type InvitationRecommendation,
+} from './recommendations';
 export {
   getInvitationMusicTrack,
   invitationMusic,
+  invitationMusicMixGain,
   invitationMusicTracks,
+  type InvitationMusicMood,
+  type InvitationMusicOccasion,
+  type InvitationMusicRights,
   type InvitationMusicTrack,
 } from './music';
 export * from './engagement';

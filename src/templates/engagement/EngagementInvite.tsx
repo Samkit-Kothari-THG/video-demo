@@ -15,6 +15,7 @@ import {
   type EngagementInviteProps,
   type ResolvedEngagementInviteProps,
 } from './model';
+import {invitationMusicMixGain} from '../music';
 
 const serif = 'Georgia, "Times New Roman", serif';
 const sans =
@@ -74,13 +75,13 @@ const mediaSource = (source: string | null) => {
 
 export const EngagementInvite: React.FC<EngagementInviteProps> = (props) => {
   const frame = useCurrentFrame();
-  const {durationInFrames} = useVideoConfig();
+  const {durationInFrames, fps} = useVideoConfig();
   const details = resolveEngagementInviteProps(props);
   const musicSrc = mediaSource(details.musicSrc);
   const audioVolume = (audioFrame: number) => {
     const intro = fade(audioFrame, 0, 24);
     const outro = fadeOut(audioFrame, durationInFrames - 54, 44);
-    return 0.32 * intro * outro;
+    return invitationMusicMixGain * details.musicVolume * intro * outro;
   };
 
   return (
@@ -92,7 +93,13 @@ export const EngagementInvite: React.FC<EngagementInviteProps> = (props) => {
         background: palette.ivory,
       }}
     >
-      {musicSrc ? <Audio src={musicSrc} volume={audioVolume} /> : null}
+      {musicSrc ? (
+        <Audio
+          src={musicSrc}
+          trimBefore={Math.round(details.musicTrimStartSeconds * fps)}
+          volume={audioVolume}
+        />
+      ) : null}
       <SilkBackdrop />
       <GeneratedInviteArt />
       <AmbientLight />

@@ -1,11 +1,12 @@
 # Vowframe
 
-A full-stack Next.js and Remotion application for creating personalized,
-cinematic video invitations from structured user input.
+A full-stack Next.js and Remotion application for creating personalized video,
+animated, and photo invitations from structured user input.
 
 The current experience includes a filterable template collection, project
-library, guided Story/Photo/Sound editor, live video preview, scene timeline,
-truthful autosave states, and server-rendered MP4 exports.
+library, guided format and design finder, format-aware Story/Photo/Sound editor,
+live previews, truthful autosave states, and server-rendered MP4, GIF, and PNG
+exports.
 
 See [the MVP plan](docs/MVP_PLAN.md) for the proposed product scope,
 architecture, milestones, and launch criteria. See
@@ -31,6 +32,19 @@ validation. The same versioned template definition drives the library, editor,
 Player preview, project record, and server render. Existing projects remain
 pinned to V1; a newly selected gallery card records its exact edition.
 
+## Invitation formats
+
+Every catalogue design adapts to all three output formats:
+
+| Format | Experience | Exports |
+| --- | --- | --- |
+| Video | 30-second cinematic scene sequence with optional music | 1080 × 1920 H.264 MP4 |
+| Animated | Six-second seamless card loop with all details kept on screen | 1080 × 1920 MP4 or optimized 540 × 960 GIF |
+| Photo | Static card with all invitation details visible at once | 1080 × 1920 PNG |
+
+The chosen format is saved with the project. Older saved projects are migrated
+to Video automatically.
+
 ## Project structure
 
 ```text
@@ -49,6 +63,8 @@ src/
   templates/
     catalog.ts                     Server-safe template registry and schemas
     CategoryInvitation.tsx         Versioned category motion system
+    ShareableInvitation.tsx        Shared animated and photo card composition
+    formats.ts                     Format and export capability definitions
     engagement/
       EngagementInvite.tsx        Production invitation template
       model.ts                     Props, defaults, and input resolution
@@ -188,19 +204,33 @@ Rendered files are written to `out/`.
 
 ## Original music library
 
-The Sound editor offers five original 30-second cues plus a silent option:
+The Sound editor offers eight original 30-second stereo cues plus a silent
+option:
 
-| Track | Suggested use |
-| --- | --- |
-| Golden Hour | Engagement |
-| Moonlit Vows | Wedding |
-| Celebration Afterglow | Birthday |
-| Little Wonder | Baby shower |
-| Morning Courtyard | Housewarming |
+| Track | Style | Strongest fit |
+| --- | --- | --- |
+| Marigold Air | Indian indie-folk | Engagement |
+| Moonlit Vows | Cinematic neo-classical | Wedding |
+| Celebration Afterglow | Nu-disco pop | Birthday |
+| Little Wonder | Modern lullaby | Baby shower |
+| Morning Courtyard | Acoustic Indian folk | Housewarming |
+| Monsoon Letters | Indian indie / lo-fi | Modern engagement |
+| Saffron Skyline | Organic Indian house | Festive celebrations |
+| First Light, Slowly | Ambient piano | Minimal invitations |
 
 The cues are procedurally composed for this project and contain no downloaded
-recordings or third-party samples. Each template selects a suitable default,
-but every track remains available for every invitation.
+recordings or third-party samples. Each template ranks a suitable default
+first, while every track remains available for every invitation.
+
+Regenerate the deterministic masters with:
+
+```bash
+npm run music:generate
+```
+
+See [the provenance register](docs/MUSIC_PROVENANCE.md) for rights records and
+master hashes, and [the competitor audit](docs/MUSIC_COMPETITOR_AUDIT.md) for
+the catalogue rationale.
 
 ## Verification
 

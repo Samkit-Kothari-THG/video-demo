@@ -1,7 +1,11 @@
 import {mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {bundle} from '@remotion/bundler';
-import {renderMedia, selectComposition} from '@remotion/renderer';
+import {
+  renderMedia,
+  renderStill,
+  selectComposition,
+} from '@remotion/renderer';
 import {getInvitationTemplate} from '../templates/catalog';
 import {updateRenderJob} from './store';
 import type {RenderJob} from './types';
@@ -31,10 +35,17 @@ export const renderInvitation = async (job: RenderJob) => {
       job.templateId,
       job.templateVersion,
     );
+    const compositionId =
+      job.format === 'video'
+        ? template.compositionId
+        : 'ShareableInvitation';
     const inputProps = {
       ...job.propsSnapshot,
       templateId: template.id,
       templateVersion: template.version,
+      format: job.format,
+      musicSrc:
+        job.format === 'video' ? job.propsSnapshot.musicSrc : null,
       assetBaseUrl:
         process.env.TEMPLATE_ASSET_BASE_URL ??
         process.env.NEXT_PUBLIC_TEMPLATE_ASSET_BASE_URL ??
@@ -42,27 +53,46 @@ export const renderInvitation = async (job: RenderJob) => {
     };
     const composition = await selectComposition({
       serveUrl,
-      id: template.compositionId,
+      id: compositionId,
       inputProps,
     });
     const rendersDirectory = path.join(process.cwd(), 'public', 'renders');
     await mkdir(rendersDirectory, {recursive: true});
-    const fileName = `${job.id}.mp4`;
+    const fileName = `${job.id}.${job.exportType}`;
+    const outputLocation = path.join(rendersDirectory, fileName);
+    const onProgress = (progress: number) => {
+      void updateRenderJob(job.id, {
+        status: 'rendering',
+        progress: Math.min(99, Math.max(1, Math.round(progress * 100))),
+      });
+    };
 
-    await renderMedia({
-      codec: 'h264',
-      composition,
-      inputProps,
-      outputLocation: path.join(rendersDirectory, fileName),
-      overwrite: true,
-      serveUrl,
-      onProgress: ({progress}) => {
-        void updateRenderJob(job.id, {
-          status: 'rendering',
-          progress: Math.min(99, Math.max(1, Math.round(progress * 100))),
-        });
-      },
-    });
+    if (job.exportType === 'png') {
+      onProgress(50);
+      await renderStill({
+        composition,
+        frame: 45,
+        inputProps,
+        output: outputLocation,
+        overwrite: true,
+        serveUrl,
+      });
+    } else {
+      const isGif = job.exportType === 'gif';
+      await renderMedia({
+        codec: isGif ? 'gif' : 'h264',
+        composition,
+        everyNthFrame: isGif ? 2 : 1,
+        inputProps,
+        muted: job.format !== 'video',
+        numberOfGifLoops: isGif ? null : undefined,
+        outputLocation,
+        overwrite: true,
+        scale: isGif ? 0.5 : 1,
+        serveUrl,
+        onProgress: ({progress}) => onProgress(progress),
+      });
+    }
 
     await updateRenderJob(job.id, {
       status: 'completed',

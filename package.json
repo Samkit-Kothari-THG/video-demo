@@ -10,6 +10,7 @@
     "remotion:studio": "remotion studio src/index.ts --host 0.0.0.0",
     "editor": "next dev --webpack",
     "typecheck": "tsc --noEmit",
+    "music:generate": "node scripts/generate-original-music.mjs",
     "render:engagement": "remotion render src/index.ts EngagementInvite out/EngagementInvite.mp4",
     "render:wedding": "remotion render src/index.ts WeddingNoor out/WeddingNoor.mp4",
     "render:birthday": "remotion render src/index.ts BirthdayConfetti out/BirthdayConfetti.mp4",
@@ -19,6 +20,7 @@
   "dependencies": {
     "@remotion/cli": "4.0.499",
     "@remotion/bundler": "4.0.499",
+    "@remotion/media-parser": "4.0.499",
     "@remotion/player": "4.0.499",
     "@remotion/renderer": "4.0.499",
     "next": "16.2.12",

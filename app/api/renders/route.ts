@@ -2,6 +2,11 @@ import {NextRequest, NextResponse} from 'next/server';
 import {renderInvitation} from '../../../src/server/render';
 import {createRenderJob, getProject} from '../../../src/server/store';
 import {validateTemplateProps} from '../../../src/templates/catalog';
+import {
+  canExportInvitationAs,
+  getInvitationFormat,
+  isInvitationExportType,
+} from '../../../src/templates/formats';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,6 +23,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({error: 'Project not found.'}, {status: 404});
     }
 
+    const formatDefinition = getInvitationFormat(project.format);
+    const exportType = isInvitationExportType(body?.exportType)
+      ? body.exportType
+      : formatDefinition.primaryExport;
+    if (!canExportInvitationAs(project.format, exportType)) {
+      return NextResponse.json(
+        {error: `${exportType.toUpperCase()} is not available for this invitation format.`},
+        {status: 400},
+      );
+    }
+
     const errors = validateTemplateProps(
       project.templateId,
       project.props,
@@ -31,7 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const job = await createRenderJob(project);
+    const job = await createRenderJob(project, exportType);
     void renderInvitation(job);
     return NextResponse.json({job}, {status: 202});
   } catch {

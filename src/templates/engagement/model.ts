@@ -11,6 +11,11 @@ export type InvitationContentProps = {
   familyName?: string;
   photoSrc?: string | null;
   musicSrc?: string | null;
+  musicUploadName?: string | null;
+  musicDurationSeconds?: number | null;
+  musicTrimStartSeconds?: number;
+  musicVolume?: number;
+  musicRightsConfirmed?: boolean;
   showPhoto?: boolean;
   photoFocalPoint?: number;
 };
@@ -28,6 +33,11 @@ export type ResolvedEngagementInviteProps = {
   familyName: string;
   photoSrc: string | null;
   musicSrc: string | null;
+  musicUploadName: string | null;
+  musicDurationSeconds: number | null;
+  musicTrimStartSeconds: number;
+  musicVolume: number;
+  musicRightsConfirmed: boolean;
   showPhoto: boolean;
   photoFocalPoint: number;
 };
@@ -113,6 +123,11 @@ export const defaultEngagementInviteProps: ResolvedEngagementInviteProps = {
   familyName: 'Bhalgat Family',
   photoSrc: 'engagement/couple-photo.jpg',
   musicSrc: invitationMusic.goldenHour.src,
+  musicUploadName: null,
+  musicDurationSeconds: invitationMusic.goldenHour.durationSeconds,
+  musicTrimStartSeconds: 0,
+  musicVolume: 1,
+  musicRightsConfirmed: false,
   showPhoto: true,
   photoFocalPoint: 18,
 };
@@ -136,6 +151,11 @@ export const createEngagementInviteDraft = (): EngagementInviteProps => ({
   familyName: defaultEngagementInviteProps.familyName,
   photoSrc: defaultEngagementInviteProps.photoSrc,
   musicSrc: defaultEngagementInviteProps.musicSrc,
+  musicUploadName: defaultEngagementInviteProps.musicUploadName,
+  musicDurationSeconds: defaultEngagementInviteProps.musicDurationSeconds,
+  musicTrimStartSeconds: defaultEngagementInviteProps.musicTrimStartSeconds,
+  musicVolume: defaultEngagementInviteProps.musicVolume,
+  musicRightsConfirmed: defaultEngagementInviteProps.musicRightsConfirmed,
   showPhoto: defaultEngagementInviteProps.showPhoto,
   photoFocalPoint: defaultEngagementInviteProps.photoFocalPoint,
 });
@@ -178,6 +198,13 @@ export const resolveEngagementInviteProps = (
     props.groomName,
     defaultEngagementInviteProps.groomName,
   );
+  const musicDurationSeconds =
+    typeof props.musicDurationSeconds === 'number' &&
+    Number.isFinite(props.musicDurationSeconds) &&
+    props.musicDurationSeconds > 0
+      ? props.musicDurationSeconds
+      : defaultEngagementInviteProps.musicDurationSeconds;
+  const maximumTrimStart = Math.max(0, (musicDurationSeconds ?? 30) - 30);
 
   return {
     brideName,
@@ -208,6 +235,25 @@ export const resolveEngagementInviteProps = (
       props.musicSrc === undefined
         ? defaultEngagementInviteProps.musicSrc
         : props.musicSrc,
+    musicUploadName:
+      props.musicUploadName === undefined
+        ? defaultEngagementInviteProps.musicUploadName
+        : props.musicUploadName,
+    musicDurationSeconds,
+    musicTrimStartSeconds: clamp(
+      props.musicTrimStartSeconds ??
+        defaultEngagementInviteProps.musicTrimStartSeconds,
+      0,
+      maximumTrimStart,
+    ),
+    musicVolume: clamp(
+      props.musicVolume ?? defaultEngagementInviteProps.musicVolume,
+      0,
+      1,
+    ),
+    musicRightsConfirmed:
+      props.musicRightsConfirmed ??
+      defaultEngagementInviteProps.musicRightsConfirmed,
     showPhoto: props.showPhoto ?? defaultEngagementInviteProps.showPhoto,
     photoFocalPoint: clamp(
       props.photoFocalPoint ?? defaultEngagementInviteProps.photoFocalPoint,

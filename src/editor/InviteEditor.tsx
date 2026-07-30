@@ -1,7 +1,7 @@
 'use client';
 
-import {Player} from '@remotion/player';
-import React, {useEffect, useMemo, useState} from 'react';
+import {Player, type PlayerRef} from '@remotion/player';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   CatalogInvitation,
   createTemplateDraft,
@@ -49,6 +49,13 @@ type RenderJob = {
 type EditorTab = 'story' | 'media' | 'sound' | 'review';
 type SaveState = 'saved' | 'saving' | 'offline';
 type ServerState = 'checking' | 'ready' | 'offline';
+type PreviewScene = {
+  id: 'opening' | 'names' | 'photo' | 'details' | 'finale';
+  label: string;
+  startFrame: number;
+  focusFrame: number;
+  editorTab: EditorTab;
+};
 
 const STORAGE_KEY = 'video-invite-studio:workspace:v1';
 const MAX_LOCAL_IMAGE_SIZE = 2_500_000;
@@ -72,13 +79,40 @@ const editorTabs: ReadonlyArray<{
   {id: 'review', marker: '✓', label: 'Review'},
 ];
 
-const timelineScenes = [
-  {label: 'Opening', frames: 145},
-  {label: 'Names', frames: 170},
-  {label: 'Photo', frames: 185},
-  {label: 'Details', frames: 165},
-  {label: 'Finale', frames: 235},
+const previewScene = (
+  id: PreviewScene['id'],
+  label: string,
+  startFrame: number,
+  focusFrame: number,
+  editorTab: EditorTab,
+): PreviewScene => ({id, label, startFrame, focusFrame, editorTab});
+
+const flagshipPreviewScenes: readonly PreviewScene[] = [
+  previewScene('opening', 'Opening', 0, 32, 'story'),
+  previewScene('names', 'Names', 145, 175, 'story'),
+  previewScene('photo', 'Photo', 315, 350, 'media'),
+  previewScene('details', 'Details', 500, 525, 'story'),
+  previewScene('finale', 'Finale', 665, 790, 'review'),
 ];
+
+const categoryPreviewScenes: readonly PreviewScene[] = [
+  previewScene('opening', 'Opening', 0, 34, 'story'),
+  previewScene('names', 'Names', 170, 210, 'story'),
+  previewScene('photo', 'Photo', 340, 382, 'media'),
+  previewScene('details', 'Details', 590, 635, 'story'),
+  previewScene('finale', 'Finale', 760, 795, 'review'),
+];
+
+const PREVIEW_DURATION_IN_FRAMES = 900;
+const PREVIEW_FPS = 30;
+
+const formatPreviewTime = (frame: number) => {
+  const totalSeconds = Math.floor(frame / PREVIEW_FPS);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
 
 const makeId = () =>
   globalThis.crypto?.randomUUID?.() ??
@@ -229,6 +263,7 @@ const TextField: React.FC<{
 };
 
 export const InviteEditor: React.FC = () => {
+  const playerRef = useRef<PlayerRef>(null);
   const [workspace, setWorkspace] = useState<EditorWorkspace>({
     activeProjectId: null,
     projects: [],
@@ -245,6 +280,7 @@ export const InviteEditor: React.FC = () => {
   const [serverState, setServerState] = useState<ServerState>('checking');
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [previewFrame, setPreviewFrame] = useState(0);
 
   const activeProject = workspace.projects.find(
     (project) => project.id === workspace.activeProjectId,
@@ -255,6 +291,17 @@ export const InviteEditor: React.FC = () => {
         activeProject.templateVersion,
       )
     : flagshipTemplate;
+  const previewScenes =
+    activeTemplate.id === FLAGSHIP_TEMPLATE_ID &&
+    activeTemplate.version === FLAGSHIP_TEMPLATE_VERSION
+      ? flagshipPreviewScenes
+      : categoryPreviewScenes;
+  const activePreviewSceneIndex = previewScenes.findIndex(
+    (scene, index) =>
+      previewFrame >= scene.startFrame &&
+      previewFrame <
+        (previewScenes[index + 1]?.startFrame ?? PREVIEW_DURATION_IN_FRAMES),
+  );
   const props =
     activeProject?.props ??
     createTemplateDraft(activeTemplate.id, activeTemplate.version);
@@ -409,6 +456,28 @@ export const InviteEditor: React.FC = () => {
   }, [toast]);
 
   useEffect(() => {
+    if (screen !== 'editor' || !activeProject) {
+      return;
+    }
+
+    const player = playerRef.current;
+    if (!player) {
+      return;
+    }
+
+    const handleTimeUpdate = (event: {detail: {frame: number}}) => {
+      setPreviewFrame(event.detail.frame);
+    };
+
+    player.addEventListener('timeupdate', handleTimeUpdate);
+    setPreviewFrame(player.getCurrentFrame());
+
+    return () => {
+      player.removeEventListener('timeupdate', handleTimeUpdate);
+    };
+  }, [activeProject?.id, screen]);
+
+  useEffect(() => {
     if (!isRendering || !renderJob) {
       return;
     }
@@ -436,6 +505,7 @@ export const InviteEditor: React.FC = () => {
   const openProject = (projectId: string) => {
     setWorkspace((current) => ({...current, activeProjectId: projectId}));
     setActiveTab('story');
+    setPreviewFrame(0);
     setRenderJob(null);
     setScreen('editor');
   };
@@ -483,8 +553,15 @@ export const InviteEditor: React.FC = () => {
     }
 
     setActiveTab('story');
+    setPreviewFrame(0);
     setRenderJob(null);
     setScreen('editor');
+  };
+
+  const jumpToPreviewScene = (scene: PreviewScene) => {
+    playerRef.current?.seekTo(scene.focusFrame);
+    setPreviewFrame(scene.focusFrame);
+    setActiveTab(scene.editorTab);
   };
 
   const updateProps = (updates: Partial<InvitationContentProps>) => {
@@ -1459,6 +1536,7 @@ export const InviteEditor: React.FC = () => {
                     assetBaseUrl: TEMPLATE_ASSET_BASE_URL,
                   }}
                   loop
+                  ref={playerRef}
                   style={{height: '100%', width: '100%'}}
                 />
               </div>
@@ -1468,31 +1546,43 @@ export const InviteEditor: React.FC = () => {
               <div className={styles.timelineHeader}>
                 <div>
                   <strong>Scenes</strong>
-                  <span>6 transitions · soundtrack synced</span>
+                  <span>
+                    {previewScenes[activePreviewSceneIndex]?.label ?? 'Opening'}{' '}
+                    · click a scene to jump
+                  </span>
                 </div>
-                <span>00:30</span>
+                <span>
+                  {formatPreviewTime(previewFrame)} /{' '}
+                  {formatPreviewTime(PREVIEW_DURATION_IN_FRAMES)}
+                </span>
               </div>
               <div className={styles.timelineTrack}>
-                {timelineScenes.map((scene, index) => (
-                  <button
-                    aria-label={`${scene.label} scene`}
-                    key={scene.label}
-                    onClick={() =>
-                      setActiveTab(
-                        index === 2
-                          ? 'media'
-                          : index === 4
-                            ? 'review'
-                            : 'story',
-                      )
-                    }
-                    style={{flex: scene.frames}}
-                    type="button"
-                  >
-                    <span>{String(index + 1).padStart(2, '0')}</span>
-                    <strong>{scene.label}</strong>
-                  </button>
-                ))}
+                {previewScenes.map((scene, index) => {
+                  const nextSceneStart =
+                    previewScenes[index + 1]?.startFrame ??
+                    PREVIEW_DURATION_IN_FRAMES;
+                  const isActive = index === activePreviewSceneIndex;
+
+                  return (
+                    <button
+                      aria-current={isActive ? 'step' : undefined}
+                      aria-label={`${scene.label} scene`}
+                      className={
+                        isActive ? styles.timelineSceneActive : undefined
+                      }
+                      key={scene.label}
+                      onClick={() => jumpToPreviewScene(scene)}
+                      style={{flex: nextSceneStart - scene.startFrame}}
+                      title={`Jump to ${scene.label.toLowerCase()} at ${formatPreviewTime(
+                        scene.focusFrame,
+                      )}`}
+                      type="button"
+                    >
+                      <span>{String(index + 1).padStart(2, '0')}</span>
+                      <strong>{scene.label}</strong>
+                    </button>
+                  );
+                })}
               </div>
               <div className={styles.timelineTimes}>
                 <span>00:00</span>

@@ -1,72 +1,86 @@
 import type {Metadata, Viewport} from 'next';
-import {headers} from 'next/headers';
+import {
+  absoluteUrl,
+  getSiteOrigin,
+  siteDescription,
+  siteName,
+  siteTitle,
+} from '../src/seo/site';
 import './globals.css';
 
-const title = 'Vowframe — Video, animated, and photo invitations';
-const description =
-  'Create and share cinematic videos, looping animated cards, and polished photo invitations.';
-
 export const generateMetadata = async (): Promise<Metadata> => {
-  const requestHeaders = await headers();
-  const host = (
-    requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host')
-  )
-    ?.split(',')[0]
-    ?.trim();
-  const forwardedProtocol = requestHeaders
-    .get('x-forwarded-proto')
-    ?.split(',')[0]
-    ?.trim();
-  const protocol =
-    forwardedProtocol === 'http' || forwardedProtocol === 'https'
-      ? forwardedProtocol
-      : host?.startsWith('localhost')
-        ? 'http'
-        : 'https';
-  let metadataBase: URL | undefined;
-
-  if (host) {
-    try {
-      metadataBase = new URL(`${protocol}://${host}`);
-    } catch {
-      metadataBase = undefined;
-    }
-  }
-
-  const socialImage = metadataBase
-    ? new URL('/og.png', metadataBase).toString()
-    : undefined;
+  const metadataBase = await getSiteOrigin();
+  const title = `${siteTitle} | ${siteName}`;
+  const socialImage = absoluteUrl(metadataBase, '/og-v2.png');
+  const googleVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+  const bingVerification = process.env.BING_SITE_VERIFICATION?.trim();
 
   return {
     metadataBase,
-    title,
-    description,
+    applicationName: 'Vowframe Invitation Studio',
+    title: {
+      default: title,
+      template: `%s | ${siteName}`,
+    },
+    description: siteDescription,
+    alternates: {
+      canonical: '/',
+    },
+    category: 'design',
+    creator: siteName,
+    publisher: siteName,
+    referrer: 'origin-when-cross-origin',
+    manifest: '/manifest.webmanifest',
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
+    verification:
+      googleVerification || bingVerification
+        ? {
+            google: googleVerification || undefined,
+            other: bingVerification
+              ? {
+                  'msvalidate.01': bingVerification,
+                }
+              : undefined,
+          }
+        : undefined,
     openGraph: {
       title,
-      description,
+      description: siteDescription,
       type: 'website',
-      images: socialImage
-        ? [
-            {
-              url: socialImage,
-              width: 1731,
-              height: 909,
-              alt: 'Vowframe invitation formats',
-            },
-          ]
-        : undefined,
+      url: '/',
+      siteName,
+      locale: 'en_IN',
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 630,
+          alt: 'Vowframe video, animated, and photo invitation maker',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
-      description,
-      images: socialImage ? [socialImage] : undefined,
+      description: siteDescription,
+      images: [socialImage],
     },
   };
 };
 
 export const viewport: Viewport = {
-  themeColor: '#f4f1eb',
+  colorScheme: 'light',
+  themeColor: '#75364a',
 };
 
 export default function RootLayout({

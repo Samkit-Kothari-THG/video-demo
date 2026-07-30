@@ -1,0 +1,776 @@
+.homeDiscovery,
+.occasionPage {
+  --marketing-ink: #211c18;
+  --marketing-muted: #716960;
+  --marketing-wine: #75364a;
+  --marketing-wine-dark: #552436;
+  --marketing-gold: #b67a2a;
+  --marketing-line: #e5ddd2;
+  --marketing-paper: #fffefa;
+  color: var(--marketing-ink);
+  background: #f4f1eb;
+}
+
+.homeDiscovery {
+  padding: 96px 36px 54px;
+  border-top: 1px solid var(--marketing-line);
+}
+
+.contentShell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.sectionIntro {
+  max-width: 760px;
+}
+
+.kicker,
+.breadcrumb {
+  color: var(--marketing-wine);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sectionIntro h2,
+.formatSection h2,
+.templateSection h2,
+.stepsSection h2,
+.checklistPanel h2,
+.faqSection h2 {
+  margin: 14px 0 16px;
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: clamp(36px, 4.5vw, 58px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.sectionIntro > p,
+.sectionLead {
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.occasionGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.occasionCard {
+  display: grid;
+  min-height: 184px;
+  align-content: space-between;
+  gap: 28px;
+  padding: 22px;
+  border: 1px solid var(--marketing-line);
+  border-radius: 20px;
+  color: var(--marketing-ink);
+  background: rgba(255, 254, 250, 0.78);
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.occasionCard:hover {
+  border-color: #cdbbc0;
+  transform: translateY(-3px);
+  box-shadow: 0 18px 42px rgba(55, 42, 33, 0.1);
+}
+
+.occasionCard span:first-child {
+  color: var(--marketing-gold);
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 26px;
+}
+
+.occasionCard div {
+  display: grid;
+  gap: 7px;
+}
+
+.occasionCard strong {
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.occasionCard small {
+  color: var(--marketing-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.occasionCard span:last-child {
+  color: var(--marketing-wine);
+  font-size: 18px;
+}
+
+.homeValueGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 82px 0;
+}
+
+.homeValueGrid article {
+  padding: 28px;
+  border-top: 1px solid var(--marketing-line);
+}
+
+.homeValueGrid span {
+  color: var(--marketing-gold);
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 15px;
+  font-style: italic;
+}
+
+.homeValueGrid h3 {
+  margin: 16px 0 10px;
+  font-size: 16px;
+}
+
+.homeValueGrid p {
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.homeFaq {
+  display: grid;
+  grid-template-columns: 0.72fr 1.28fr;
+  gap: 80px;
+  padding: 58px;
+  border-radius: 30px;
+  color: #f7eee4;
+  background:
+    radial-gradient(circle at 0 100%, rgba(139, 65, 80, 0.42), transparent 43%),
+    #211c19;
+}
+
+.homeFaq h2 {
+  margin: 13px 0 0;
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.03;
+}
+
+.homeFaq .kicker {
+  color: #e6c28f;
+}
+
+.faqList {
+  display: grid;
+  gap: 2px;
+}
+
+.faqList details {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.faqList summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 19px 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 750;
+  list-style: none;
+}
+
+.faqList summary::-webkit-details-marker {
+  display: none;
+}
+
+.faqList summary::after {
+  color: #e6c28f;
+  content: "+";
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.faqList details[open] summary::after {
+  content: "−";
+}
+
+.faqList p {
+  margin: -4px 0 20px;
+  color: #c9beb4;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.marketingFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(1180px, 100%);
+  margin: 54px auto 0;
+  color: var(--marketing-muted);
+  font-size: 12px;
+}
+
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.footerLinks a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footerLinks a:hover {
+  color: var(--marketing-wine);
+}
+
+.occasionHeader {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 max(24px, calc((100vw - 1180px) / 2));
+  border-bottom: 1px solid var(--marketing-line);
+  background: rgba(255, 254, 250, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--marketing-ink);
+  text-decoration: none;
+}
+
+.brandMark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 11px;
+  color: #fffaf4;
+  background: var(--marketing-wine);
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 23px;
+  box-shadow: 0 7px 20px rgba(87, 36, 52, 0.18);
+}
+
+.brand strong {
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.headerCta,
+.primaryCta,
+.secondaryCta {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.headerCta,
+.primaryCta {
+  color: #fffaf5;
+  background: var(--marketing-wine);
+  box-shadow: 0 8px 20px rgba(93, 39, 56, 0.17);
+}
+
+.headerCta {
+  padding: 0 17px;
+}
+
+.occasionMain {
+  overflow: hidden;
+}
+
+.occasionHero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(420px, 0.75fr);
+  align-items: center;
+  gap: clamp(54px, 8vw, 112px);
+  width: min(1180px, calc(100% - 72px));
+  min-height: 660px;
+  margin: 0 auto;
+  padding: 74px 0;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.breadcrumb a {
+  color: var(--marketing-muted);
+  text-decoration: none;
+}
+
+.heroCopy h1 {
+  max-width: 680px;
+  margin: 24px 0 22px;
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: clamp(52px, 6vw, 78px);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+}
+
+.heroCopy > p {
+  max-width: 650px;
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.primaryCta,
+.secondaryCta {
+  padding: 0 20px;
+}
+
+.secondaryCta {
+  border: 1px solid var(--marketing-line);
+  color: var(--marketing-ink);
+  background: var(--marketing-paper);
+}
+
+.formatPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.formatPills span {
+  padding: 8px 11px;
+  border: 1px solid var(--marketing-line);
+  border-radius: 999px;
+  color: var(--marketing-muted);
+  background: rgba(255, 254, 250, 0.7);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.heroArtwork {
+  position: relative;
+  width: min(430px, 100%);
+  aspect-ratio: 9 / 12;
+  justify-self: end;
+}
+
+.heroArtwork::before {
+  position: absolute;
+  z-index: 0;
+  inset: 10% -14% -8% 12%;
+  border-radius: 50%;
+  background: rgba(117, 54, 74, 0.11);
+  filter: blur(8px);
+  content: "";
+}
+
+.heroArtwork img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 28px;
+  object-fit: cover;
+  box-shadow: 0 35px 80px rgba(52, 37, 28, 0.2);
+}
+
+.formatSection,
+.templateSection,
+.stepsSection,
+.checklistSection,
+.faqSection,
+.relatedSection {
+  padding: 92px max(36px, calc((100vw - 1180px) / 2));
+}
+
+.formatSection,
+.stepsSection,
+.faqSection {
+  background: var(--marketing-paper);
+}
+
+.sectionHeader {
+  max-width: 760px;
+}
+
+.formatGrid,
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 38px;
+}
+
+.formatCard,
+.stepCard {
+  padding: 28px;
+  border: 1px solid var(--marketing-line);
+  border-radius: 22px;
+  background: #f8f5ef;
+}
+
+.formatCard span,
+.stepCard span {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--marketing-wine);
+  background: #f0e4e7;
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+}
+
+.formatCard h3,
+.stepCard h3 {
+  margin: 19px 0 10px;
+  font-size: 17px;
+}
+
+.formatCard p,
+.stepCard p {
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 38px;
+}
+
+.templateCard {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--marketing-line);
+  border-radius: 24px;
+  background: var(--marketing-paper);
+}
+
+.templateCard img {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+}
+
+.templateCardCopy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 32px;
+}
+
+.templateCardCopy span {
+  color: var(--marketing-wine);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.templateCardCopy h3 {
+  margin: 12px 0 14px;
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.templateCardCopy p {
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.templateCardCopy a {
+  align-self: flex-start;
+  margin-top: 24px;
+  color: var(--marketing-wine);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.checklistSection {
+  background: #2a211d;
+}
+
+.checklistPanel {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 90px;
+  width: min(1060px, 100%);
+  margin: 0 auto;
+  color: #f7eee4;
+}
+
+.checklistPanel .kicker {
+  color: #e6c28f;
+}
+
+.checklistPanel h2 {
+  max-width: 500px;
+}
+
+.checklistPanel p {
+  margin: 0;
+  color: #c9beb4;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.checklist {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklist li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  padding: 17px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.checklist li::before {
+  color: #e6c28f;
+  content: "✓";
+}
+
+.faqSection .faqList {
+  max-width: 850px;
+  margin-top: 30px;
+}
+
+.faqSection .faqList details {
+  border-color: var(--marketing-line);
+}
+
+.faqSection .faqList summary {
+  font-size: 15px;
+}
+
+.faqSection .faqList p {
+  color: var(--marketing-muted);
+}
+
+.relatedSection {
+  text-align: center;
+}
+
+.relatedSection h2 {
+  margin: 0 0 28px;
+  font-family: Iowan Old Style, Baskerville, Georgia, serif;
+  font-size: 34px;
+  font-weight: 500;
+}
+
+.relatedLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+}
+
+.relatedLinks a {
+  padding: 11px 15px;
+  border: 1px solid var(--marketing-line);
+  border-radius: 999px;
+  color: var(--marketing-muted);
+  background: rgba(255, 254, 250, 0.78);
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.relatedLinks a:hover {
+  border-color: #cdbbc0;
+  color: var(--marketing-wine);
+}
+
+@media (max-width: 1040px) {
+  .occasionGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .occasionHero {
+    grid-template-columns: 1fr 0.7fr;
+    gap: 52px;
+  }
+
+  .templateCard {
+    grid-template-columns: 1fr;
+  }
+
+  .templateCard img {
+    min-height: 300px;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 760px) {
+  .homeDiscovery {
+    padding: 72px 20px 38px;
+  }
+
+  .occasionGrid,
+  .homeValueGrid,
+  .formatGrid,
+  .stepsGrid,
+  .templateGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .occasionGrid {
+    gap: 10px;
+  }
+
+  .occasionCard {
+    min-height: 150px;
+  }
+
+  .homeValueGrid {
+    margin: 52px 0;
+  }
+
+  .homeFaq {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 31px 25px;
+  }
+
+  .marketingFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .occasionHeader {
+    padding: 0 18px;
+  }
+
+  .headerCta {
+    min-height: 40px;
+    padding: 0 13px;
+  }
+
+  .occasionHero {
+    grid-template-columns: 1fr;
+    width: calc(100% - 40px);
+    min-height: auto;
+    padding: 52px 0 72px;
+  }
+
+  .heroArtwork {
+    width: min(390px, 88%);
+    justify-self: center;
+  }
+
+  .formatSection,
+  .templateSection,
+  .stepsSection,
+  .checklistSection,
+  .faqSection,
+  .relatedSection {
+    padding: 72px 20px;
+  }
+
+  .templateCard {
+    grid-template-columns: 0.76fr 1fr;
+  }
+
+  .templateCard img {
+    min-height: 330px;
+    aspect-ratio: auto;
+  }
+
+  .templateCardCopy {
+    padding: 23px;
+  }
+
+  .checklistPanel {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand strong {
+    font-size: 18px;
+  }
+
+  .headerCta {
+    font-size: 10px;
+  }
+
+  .heroCopy h1 {
+    font-size: 49px;
+  }
+
+  .heroActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .templateCard {
+    grid-template-columns: 1fr;
+  }
+
+  .templateCard img {
+    min-height: 280px;
+    aspect-ratio: 16 / 11;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .occasionCard {
+    transition: none;
+  }
+}

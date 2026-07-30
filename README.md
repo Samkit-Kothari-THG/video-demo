@@ -53,6 +53,8 @@ app/
   globals.css                       Global product styles
   layout.tsx                        App metadata and root layout
   page.tsx                          Vowframe application entry
+assets/
+  music-masters/                    Lossless original soundtrack masters
 src/
   editor/
     InviteEditor.tsx                Project library and guided editor
@@ -70,7 +72,8 @@ src/
       model.ts                     Props, defaults, and input resolution
       index.ts                     Template exports
 public/
-  engagement/                      Invitation images and audio
+  engagement/                      Invitation images
+  music/                           Compressed browser/render soundtrack files
   templates/                       Original category artwork
 docs/
   MVP_PLAN.md                      Product and delivery plan
@@ -88,6 +91,11 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000). The Next.js application
 includes the template gallery, guided editor, live Remotion preview,
 server-backed projects, image uploads, render-job status, and MP4 downloads.
+
+Set `SITE_URL` to the canonical HTTPS origin in production. Metadata, robots,
+the sitemap, and JSON-LD are generated from that build-time value so public
+pages remain statically cacheable; local builds fall back to
+`http://localhost:3000`.
 
 ## Optional Git-hosted template artwork
 
@@ -220,9 +228,11 @@ option:
 
 The cues are procedurally composed for this project and contain no downloaded
 recordings or third-party samples. Each template ranks a suitable default
-first, while every track remains available for every invitation.
+first, while every track remains available for every invitation. Lossless WAV
+masters remain under `assets/music-masters/`; browser previews and renders use
+192 kbps MP3 delivery files under `public/music/`.
 
-Regenerate the deterministic masters with:
+Regenerate the deterministic masters and delivery files with:
 
 ```bash
 npm run music:generate

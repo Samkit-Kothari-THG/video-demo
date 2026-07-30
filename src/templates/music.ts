@@ -61,7 +61,7 @@ export const invitationMusic = {
     energy: 'balanced',
     moods: ['romantic', 'warm', 'festive'],
     recommendedFor: ['engagement', 'wedding', 'housewarming'],
-    src: 'engagement/indian-instrumental.wav',
+    src: 'music/marigold-air.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -75,7 +75,7 @@ export const invitationMusic = {
     energy: 'gentle',
     moods: ['romantic', 'elegant', 'dreamy'],
     recommendedFor: ['engagement', 'wedding'],
-    src: 'music/moonlit-vows.wav',
+    src: 'music/moonlit-vows.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -89,7 +89,7 @@ export const invitationMusic = {
     energy: 'bright',
     moods: ['playful', 'modern', 'festive'],
     recommendedFor: ['birthday'],
-    src: 'music/celebration-afterglow.wav',
+    src: 'music/celebration-afterglow.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -103,7 +103,7 @@ export const invitationMusic = {
     energy: 'gentle',
     moods: ['warm', 'dreamy', 'playful'],
     recommendedFor: ['baby-shower'],
-    src: 'music/little-wonder.wav',
+    src: 'music/little-wonder.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -117,7 +117,7 @@ export const invitationMusic = {
     energy: 'balanced',
     moods: ['warm', 'organic', 'festive'],
     recommendedFor: ['housewarming', 'engagement'],
-    src: 'music/morning-courtyard.wav',
+    src: 'music/morning-courtyard.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -131,7 +131,7 @@ export const invitationMusic = {
     energy: 'balanced',
     moods: ['romantic', 'modern', 'dreamy'],
     recommendedFor: ['engagement', 'wedding'],
-    src: 'music/monsoon-letters.wav',
+    src: 'music/monsoon-letters.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -145,7 +145,7 @@ export const invitationMusic = {
     energy: 'bright',
     moods: ['festive', 'modern', 'organic'],
     recommendedFor: ['birthday', 'engagement', 'housewarming'],
-    src: 'music/saffron-skyline.wav',
+    src: 'music/saffron-skyline.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -159,7 +159,7 @@ export const invitationMusic = {
     energy: 'gentle',
     moods: ['minimal', 'elegant', 'romantic'],
     recommendedFor: ['wedding', 'baby-shower', 'housewarming'],
-    src: 'music/first-light.wav',
+    src: 'music/first-light.mp3',
     durationSeconds: 30,
     rights: projectOriginalRights,
   },
@@ -168,7 +168,26 @@ export const invitationMusic = {
 export const invitationMusicTracks: readonly InvitationMusicTrack[] =
   Object.values(invitationMusic);
 
+const legacyInvitationMusicSources: Readonly<Record<string, string>> = {
+  'engagement/indian-instrumental.wav': invitationMusic.goldenHour.src,
+  'music/moonlit-vows.wav': invitationMusic.moonlitVows.src,
+  'music/celebration-afterglow.wav':
+    invitationMusic.celebrationAfterglow.src,
+  'music/little-wonder.wav': invitationMusic.littleWonder.src,
+  'music/morning-courtyard.wav': invitationMusic.morningCourtyard.src,
+  'music/monsoon-letters.wav': invitationMusic.monsoonLetters.src,
+  'music/saffron-skyline.wav': invitationMusic.saffronSkyline.src,
+  'music/first-light.wav': invitationMusic.firstLight.src,
+};
+
+export const resolveInvitationMusicSource = (
+  source: string | null | undefined,
+): string | null | undefined =>
+  source ? (legacyInvitationMusicSources[source] ?? source) : source;
+
 export const getInvitationMusicTrack = (
   source: string | null | undefined,
 ): InvitationMusicTrack | null =>
-  invitationMusicTracks.find((track) => track.src === source) ?? null;
+  invitationMusicTracks.find(
+    (track) => track.src === resolveInvitationMusicSource(source),
+  ) ?? null;

@@ -1,4 +1,6 @@
+import {spawnSync} from 'node:child_process';
 import {mkdirSync, writeFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -7,6 +9,7 @@ const DURATION_SECONDS = 30;
 const SAMPLE_COUNT = SAMPLE_RATE * DURATION_SECONDS;
 const TABLE_SIZE = 4096;
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const require = createRequire(import.meta.url);
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const secondsToSample = (seconds) => Math.round(seconds * SAMPLE_RATE);
@@ -589,6 +592,7 @@ class MusicTrack {
 
     writeFileSync(outputPath, buffer);
     process.stdout.write(`Generated ${relativePath}\n`);
+    return outputPath;
   }
 }
 
@@ -1281,26 +1285,145 @@ const createFirstLight = () => {
   return track;
 };
 
+const getRemotionCompositorPackage = () => {
+  if (process.platform === 'darwin') {
+    if (process.arch === 'arm64') {
+      return '@remotion/compositor-darwin-arm64';
+    }
+    if (process.arch === 'x64') {
+      return '@remotion/compositor-darwin-x64';
+    }
+  }
+
+  if (process.platform === 'win32' && process.arch === 'x64') {
+    return '@remotion/compositor-win32-x64-msvc';
+  }
+
+  if (process.platform === 'linux') {
+    const report = process.report?.getReport();
+    const header =
+      report && typeof report !== 'string' ? report.header : undefined;
+    const libc = header?.glibcVersionRuntime ? 'gnu' : 'musl';
+    if (process.arch === 'arm64') {
+      return `@remotion/compositor-linux-arm64-${libc}`;
+    }
+    if (process.arch === 'x64') {
+      return `@remotion/compositor-linux-x64-${libc}`;
+    }
+  }
+
+  throw new Error(
+    `No bundled FFmpeg binary is available for ${process.platform} ${process.arch}.`,
+  );
+};
+
+const encodeDeliveryAudio = (masterPath, relativeDeliveryPath) => {
+  const compositorPackage = getRemotionCompositorPackage();
+  const {dir: compositorDirectory} = require(compositorPackage);
+  const ffmpegPath = resolve(
+    compositorDirectory,
+    process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg',
+  );
+  const deliveryPath = resolve(PROJECT_ROOT, relativeDeliveryPath);
+  mkdirSync(dirname(deliveryPath), {recursive: true});
+
+  const libraryPathName =
+    process.platform === 'darwin'
+      ? 'DYLD_LIBRARY_PATH'
+      : process.platform === 'linux'
+        ? 'LD_LIBRARY_PATH'
+        : null;
+  const environment = {...process.env};
+  if (libraryPathName) {
+    environment[libraryPathName] = [
+      compositorDirectory,
+      process.env[libraryPathName],
+    ]
+      .filter(Boolean)
+      .join(':');
+  }
+
+  const result = spawnSync(
+    ffmpegPath,
+    [
+      '-hide_banner',
+      '-loglevel',
+      'error',
+      '-y',
+      '-i',
+      masterPath,
+      '-map_metadata',
+      '-1',
+      '-vn',
+      '-codec:a',
+      'libmp3lame',
+      '-b:a',
+      '192k',
+      '-ar',
+      String(SAMPLE_RATE),
+      deliveryPath,
+    ],
+    {
+      encoding: 'utf8',
+      env: environment,
+    },
+  );
+
+  if (result.error || result.status !== 0) {
+    throw new Error(
+      result.error?.message ||
+        result.stderr ||
+        `FFmpeg exited with status ${result.status}.`,
+    );
+  }
+
+  process.stdout.write(`Encoded ${relativeDeliveryPath}\n`);
+};
+
 const tracks = [
   {
-    path: 'public/engagement/indian-instrumental.wav',
+    masterPath: 'assets/music-masters/marigold-air.wav',
+    deliveryPath: 'public/music/marigold-air.mp3',
     create: createGoldenHour,
   },
-  {path: 'public/music/moonlit-vows.wav', create: createMoonlitVows},
   {
-    path: 'public/music/celebration-afterglow.wav',
+    masterPath: 'assets/music-masters/moonlit-vows.wav',
+    deliveryPath: 'public/music/moonlit-vows.mp3',
+    create: createMoonlitVows,
+  },
+  {
+    masterPath: 'assets/music-masters/celebration-afterglow.wav',
+    deliveryPath: 'public/music/celebration-afterglow.mp3',
     create: createCelebrationAfterglow,
   },
-  {path: 'public/music/little-wonder.wav', create: createLittleWonder},
   {
-    path: 'public/music/morning-courtyard.wav',
+    masterPath: 'assets/music-masters/little-wonder.wav',
+    deliveryPath: 'public/music/little-wonder.mp3',
+    create: createLittleWonder,
+  },
+  {
+    masterPath: 'assets/music-masters/morning-courtyard.wav',
+    deliveryPath: 'public/music/morning-courtyard.mp3',
     create: createMorningCourtyard,
   },
-  {path: 'public/music/monsoon-letters.wav', create: createMonsoonLetters},
-  {path: 'public/music/saffron-skyline.wav', create: createSaffronSkyline},
-  {path: 'public/music/first-light.wav', create: createFirstLight},
+  {
+    masterPath: 'assets/music-masters/monsoon-letters.wav',
+    deliveryPath: 'public/music/monsoon-letters.mp3',
+    create: createMonsoonLetters,
+  },
+  {
+    masterPath: 'assets/music-masters/saffron-skyline.wav',
+    deliveryPath: 'public/music/saffron-skyline.mp3',
+    create: createSaffronSkyline,
+  },
+  {
+    masterPath: 'assets/music-masters/first-light.wav',
+    deliveryPath: 'public/music/first-light.mp3',
+    create: createFirstLight,
+  },
 ];
 
 for (const definition of tracks) {
-  definition.create().write(definition.path);
+  const masterPath = definition.create().write(definition.masterPath);
+  encodeDeliveryAudio(masterPath, definition.deliveryPath);
 }

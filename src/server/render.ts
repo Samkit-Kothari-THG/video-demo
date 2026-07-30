@@ -11,13 +11,18 @@ import {updateRenderJob} from './store';
 import type {RenderJob} from './types';
 
 let serveUrlPromise: ReturnType<typeof bundle> | null = null;
+const progressPersistenceIntervalMs = 500;
 
 const getServeUrl = () => {
   if (!serveUrlPromise) {
     serveUrlPromise = bundle({
       entryPoint: path.join(process.cwd(), 'src/index.ts'),
       publicDir: path.join(process.cwd(), 'public'),
-      enableCaching: false,
+      enableCaching: true,
+      // Rendering happens on the same worker and filesystem as this temporary
+      // bundle. A symlink keeps uploads available without copying the complete
+      // public directory (including previous render outputs) on every restart.
+      symlinkPublicDir: true,
     }).catch((error) => {
       serveUrlPromise = null;
       throw error;
@@ -28,6 +33,8 @@ const getServeUrl = () => {
 };
 
 export const renderInvitation = async (job: RenderJob) => {
+  let progressWriteChain: Promise<void> = Promise.resolve();
+
   try {
     await updateRenderJob(job.id, {status: 'rendering', progress: 1, error: null});
     const serveUrl = await getServeUrl();
@@ -60,11 +67,36 @@ export const renderInvitation = async (job: RenderJob) => {
     await mkdir(rendersDirectory, {recursive: true});
     const fileName = `${job.id}.${job.exportType}`;
     const outputLocation = path.join(rendersDirectory, fileName);
+    let lastQueuedProgress = 1;
+    let lastProgressWriteAt = 0;
     const onProgress = (progress: number) => {
-      void updateRenderJob(job.id, {
-        status: 'rendering',
-        progress: Math.min(99, Math.max(1, Math.round(progress * 100))),
-      });
+      const nextProgress = Math.min(
+        99,
+        Math.max(1, Math.round(progress * 100)),
+      );
+      const timestamp = Date.now();
+      const shouldPersist =
+        nextProgress > lastQueuedProgress &&
+        (nextProgress === 99 ||
+          timestamp - lastProgressWriteAt >= progressPersistenceIntervalMs);
+
+      if (!shouldPersist) {
+        return;
+      }
+
+      lastQueuedProgress = nextProgress;
+      lastProgressWriteAt = timestamp;
+      progressWriteChain = progressWriteChain
+        .then(async () => {
+          await updateRenderJob(job.id, {
+            status: 'rendering',
+            progress: nextProgress,
+          });
+        })
+        .catch(() => {
+          // A transient progress-write failure must not abort a valid render.
+          // The terminal status update below remains authoritative.
+        });
     };
 
     if (job.exportType === 'png') {
@@ -94,6 +126,7 @@ export const renderInvitation = async (job: RenderJob) => {
       });
     }
 
+    await progressWriteChain;
     await updateRenderJob(job.id, {
       status: 'completed',
       progress: 100,
@@ -102,6 +135,7 @@ export const renderInvitation = async (job: RenderJob) => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'The render failed unexpectedly.';
+    await progressWriteChain;
     await updateRenderJob(job.id, {status: 'failed', error: message, progress: 0});
   }
 };

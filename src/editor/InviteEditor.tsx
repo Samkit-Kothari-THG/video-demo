@@ -1,39 +1,63 @@
 'use client';
 
-import {Player, type PlayerRef} from '@remotion/player';
+import dynamic from 'next/dynamic';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
-  CatalogInvitation,
   createTemplateDraft,
-  getInvitationFormat,
-  getInvitationMusicTrack,
   getInvitationTemplate,
   invitationCategories,
-  invitationExportLabels,
-  invitationFormats,
-  invitationMusicTracks,
   invitationTemplates,
-  invitationToneOptions,
   isUploadedMusicSource,
-  recommendInvitationTemplates,
   resolveTemplateAssetSrc,
   resolveTemplateCopy,
-  ShareableInvitation,
   templateProjectInitials,
   templateProjectLabel,
-  type EngagementTextFieldKey,
   type InvitationCategory,
-  type InvitationContentProps,
-  type InvitationExportType,
-  type InvitationFormat,
-  type InvitationPhotoPreference,
   type InvitationTemplateField,
   type InvitationTemplateId,
   type InvitationTemplateVersion,
   type InvitationTone,
   validateTemplateProps,
-} from '../templates';
+} from '../templates/catalog';
+import type {
+  EngagementTextFieldKey,
+  InvitationContentProps,
+} from '../templates/engagement/model';
+import {
+  getInvitationFormat,
+  invitationExportLabels,
+  invitationFormats,
+  type InvitationExportType,
+  type InvitationFormat,
+} from '../templates/formats';
+import {
+  getInvitationMusicTrack,
+  invitationMusicTracks,
+} from '../templates/music';
+import {
+  invitationToneOptions,
+  recommendInvitationTemplates,
+  type InvitationPhotoPreference,
+} from '../templates/recommendations';
+import type {
+  InviteEditorTab,
+  InvitePreviewScene,
+} from './InvitePreview';
 import styles from './InviteEditor.module.css';
+
+const InvitePreview = dynamic(() => import('./InvitePreview'), {
+  ssr: false,
+  loading: () => (
+    <section aria-label="Loading live preview" className={styles.stage}>
+      <div className={styles.stageToolbar}>
+        <div>
+          <strong>Live preview</strong>
+          <span>Preparing the preview…</span>
+        </div>
+      </div>
+    </section>
+  ),
+});
 
 type InviteProject = {
   id: string;
@@ -60,7 +84,7 @@ type RenderJob = {
   error: string | null;
 };
 
-type EditorTab = 'story' | 'media' | 'sound' | 'review';
+type EditorTab = InviteEditorTab;
 type EditorScreen = 'library' | 'guide' | 'editor';
 type GuideStep =
   | 'format'
@@ -104,13 +128,7 @@ type SavedGuidedDraft = {
 };
 type SaveState = 'saved' | 'saving' | 'offline';
 type ServerState = 'checking' | 'ready' | 'offline';
-type PreviewScene = {
-  id: string;
-  label: string;
-  startFrame: number;
-  focusFrame: number;
-  editorTab: EditorTab;
-};
+type PreviewScene = InvitePreviewScene;
 
 const STORAGE_KEY = 'video-invite-studio:workspace:v1';
 const GUIDE_STORAGE_KEY = 'video-invite-studio:guided-brief:v1';
@@ -533,16 +551,6 @@ const photoPreviewScenes: readonly PreviewScene[] = [
   previewScene('card', 'Invitation card', 0, 0, 'review'),
 ];
 
-const PREVIEW_FPS = 30;
-
-const formatPreviewTime = (frame: number) => {
-  const totalSeconds = Math.floor(frame / PREVIEW_FPS);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-};
-
 const makeId = () =>
   globalThis.crypto?.randomUUID?.() ??
   `invite-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -771,7 +779,6 @@ const TextField: React.FC<{
 };
 
 export const InviteEditor: React.FC = () => {
-  const playerRef = useRef<PlayerRef>(null);
   const uploadedAudioRef = useRef<HTMLAudioElement>(null);
   const [workspace, setWorkspace] = useState<EditorWorkspace>({
     activeProjectId: null,
@@ -795,7 +802,6 @@ export const InviteEditor: React.FC = () => {
   const [serverState, setServerState] = useState<ServerState>('checking');
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [previewFrame, setPreviewFrame] = useState(0);
   const [isUploadingMusic, setIsUploadingMusic] = useState(false);
   const [musicRightsChecked, setMusicRightsChecked] = useState(false);
   const [musicWaveform, setMusicWaveform] = useState<number[]>([]);
@@ -811,7 +817,6 @@ export const InviteEditor: React.FC = () => {
       )
     : flagshipTemplate;
   const activeFormat = getInvitationFormat(activeProject?.format);
-  const previewDurationInFrames = activeFormat.durationInFrames;
   const previewScenes =
     activeFormat.id === 'animated'
       ? animatedPreviewScenes
@@ -823,12 +828,6 @@ export const InviteEditor: React.FC = () => {
           : categoryPreviewScenes;
   const visibleEditorTabs = editorTabs.filter(
     (tab) => tab.id !== 'sound' || activeFormat.id === 'video',
-  );
-  const activePreviewSceneIndex = previewScenes.findIndex(
-    (scene, index) =>
-      previewFrame >= scene.startFrame &&
-      previewFrame <
-        (previewScenes[index + 1]?.startFrame ?? previewDurationInFrames),
   );
   const props =
     activeProject?.props ??
@@ -1138,28 +1137,6 @@ export const InviteEditor: React.FC = () => {
   }, [details.musicVolume]);
 
   useEffect(() => {
-    if (screen !== 'editor' || !activeProject) {
-      return;
-    }
-
-    const player = playerRef.current;
-    if (!player) {
-      return;
-    }
-
-    const handleTimeUpdate = (event: {detail: {frame: number}}) => {
-      setPreviewFrame(event.detail.frame);
-    };
-
-    player.addEventListener('timeupdate', handleTimeUpdate);
-    setPreviewFrame(player.getCurrentFrame());
-
-    return () => {
-      player.removeEventListener('timeupdate', handleTimeUpdate);
-    };
-  }, [activeProject?.id, screen]);
-
-  useEffect(() => {
     if (!isRendering || !renderJob) {
       return;
     }
@@ -1232,7 +1209,6 @@ export const InviteEditor: React.FC = () => {
   const openProject = (projectId: string) => {
     setWorkspace((current) => ({...current, activeProjectId: projectId}));
     setActiveTab('story');
-    setPreviewFrame(0);
     setRenderJob(null);
     setScreen('editor');
   };
@@ -1287,7 +1263,6 @@ export const InviteEditor: React.FC = () => {
     }
 
     setActiveTab('story');
-    setPreviewFrame(0);
     setRenderJob(null);
     setScreen('editor');
   };
@@ -1325,12 +1300,6 @@ export const InviteEditor: React.FC = () => {
     setSelectedCategory(guidedBrief.occasion ?? 'all');
     setSelectedLibraryFormat(guidedBrief.format ?? 'video');
     showLibrary();
-  };
-
-  const jumpToPreviewScene = (scene: PreviewScene) => {
-    playerRef.current?.seekTo(scene.focusFrame);
-    setPreviewFrame(scene.focusFrame);
-    setActiveTab(scene.editorTab);
   };
 
   const updateProps = (updates: Partial<InvitationContentProps>) => {
@@ -1801,6 +1770,8 @@ export const InviteEditor: React.FC = () => {
               <div className={styles.templateVisual}>
                 <img
                   alt={`${flagshipTemplate.name} engagement invitation`}
+                  decoding="async"
+                  fetchPriority="high"
                   src={resolveTemplateAssetSrc(
                     flagshipTemplate.coverSrc,
                     TEMPLATE_ASSET_BASE_URL,
@@ -1954,6 +1925,8 @@ export const InviteEditor: React.FC = () => {
                     <div className={styles.catalogueArt}>
                       <img
                         alt={`${template.name} ${template.categoryLabel.toLowerCase()} invitation`}
+                        decoding="async"
+                        loading="lazy"
                         src={resolveTemplateAssetSrc(
                           template.coverSrc,
                           TEMPLATE_ASSET_BASE_URL,
@@ -2026,6 +1999,8 @@ export const InviteEditor: React.FC = () => {
                       <div className={styles.projectThumb}>
                         <img
                           alt=""
+                          decoding="async"
+                          loading="lazy"
                           src={resolveTemplateAssetSrc(
                             projectTemplate.coverSrc,
                             TEMPLATE_ASSET_BASE_URL,
@@ -2616,6 +2591,8 @@ export const InviteEditor: React.FC = () => {
                           <div className={styles.guideRecommendationArt}>
                             <img
                               alt={`${template.name} ${template.categoryLabel.toLowerCase()} invitation`}
+                              decoding="async"
+                              loading="lazy"
                               src={resolveTemplateAssetSrc(
                                 template.coverSrc,
                                 TEMPLATE_ASSET_BASE_URL,
@@ -2822,6 +2799,7 @@ export const InviteEditor: React.FC = () => {
                     {details.photoSrc ? (
                       <img
                         alt="Selected couple"
+                        decoding="async"
                         src={browserMediaSource(details.photoSrc)}
                         style={{
                           objectPosition: `50% ${details.photoFocalPoint}%`,
@@ -3118,7 +3096,6 @@ export const InviteEditor: React.FC = () => {
                         <div className={styles.customMusicControls}>
                           <button
                             onClick={() => {
-                              playerRef.current?.pause();
                               void toggleUploadedMusicPreview();
                             }}
                             type="button"
@@ -3415,140 +3392,21 @@ export const InviteEditor: React.FC = () => {
             </div>
           </aside>
 
-          <section className={styles.stage}>
-            <div className={styles.stageToolbar}>
-              <div>
-                <strong>Live preview</strong>
-                <span>
-                  {renderJob
-                    ? `${renderJob.status} · ${renderJob.progress}%`
-                    : 'Updates as you type'}
-                </span>
-              </div>
-              <div className={styles.previewSpecs}>
-                <span>9:16 portrait</span>
-                <span>{activeFormat.durationLabel}</span>
-              </div>
-            </div>
-
-            <div className={styles.canvas}>
-              <div className={styles.canvasGlow} />
-              <div className={styles.phoneFrame}>
-                <span className={styles.phoneNotch} />
-                {activeFormat.id === 'video' ? (
-                  <Player
-                    acknowledgeRemotionLicense
-                    className={styles.player}
-                    component={CatalogInvitation}
-                    compositionHeight={1920}
-                    compositionWidth={1080}
-                    controls
-                    durationInFrames={900}
-                    fps={30}
-                    inputProps={{
-                      ...props,
-                      templateId: activeTemplate.id,
-                      templateVersion: activeTemplate.version,
-                      assetBaseUrl: TEMPLATE_ASSET_BASE_URL,
-                    }}
-                    loop
-                    ref={playerRef}
-                    style={{height: '100%', width: '100%'}}
-                  />
-                ) : (
-                  <Player
-                    acknowledgeRemotionLicense
-                    className={styles.player}
-                    component={ShareableInvitation}
-                    compositionHeight={1920}
-                    compositionWidth={1080}
-                    controls={activeFormat.id === 'animated'}
-                    durationInFrames={previewDurationInFrames}
-                    fps={30}
-                    inputProps={{
-                      ...props,
-                      templateId: activeTemplate.id,
-                      templateVersion: activeTemplate.version,
-                      format: activeFormat.id,
-                      assetBaseUrl: TEMPLATE_ASSET_BASE_URL,
-                    }}
-                    loop={activeFormat.id === 'animated'}
-                    ref={playerRef}
-                    style={{height: '100%', width: '100%'}}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className={styles.timeline}>
-              <div className={styles.timelineHeader}>
-                <div>
-                  <strong>
-                    {activeFormat.id === 'video'
-                      ? 'Scenes'
-                      : activeFormat.id === 'animated'
-                        ? 'Loop'
-                        : 'Static card'}
-                  </strong>
-                  <span>
-                    {activeFormat.id === 'photo'
-                      ? 'Every detail stays visible in the final PNG'
-                      : `${previewScenes[activePreviewSceneIndex]?.label ?? 'Opening'} · click a section to jump`}
-                  </span>
-                </div>
-                <span>
-                  {formatPreviewTime(previewFrame)} /{' '}
-                  {formatPreviewTime(previewDurationInFrames)}
-                </span>
-              </div>
-              {activeFormat.id !== 'photo' ? (
-                <div className={styles.timelineTrack}>
-                {previewScenes.map((scene, index) => {
-                  const nextSceneStart =
-                    previewScenes[index + 1]?.startFrame ??
-                    previewDurationInFrames;
-                  const isActive = index === activePreviewSceneIndex;
-
-                  return (
-                    <button
-                      aria-current={isActive ? 'step' : undefined}
-                      aria-label={`${scene.label} scene`}
-                      className={
-                        isActive ? styles.timelineSceneActive : undefined
-                      }
-                      key={scene.label}
-                      onClick={() => jumpToPreviewScene(scene)}
-                      style={{flex: nextSceneStart - scene.startFrame}}
-                      title={`Jump to ${scene.label.toLowerCase()} at ${formatPreviewTime(
-                        scene.focusFrame,
-                      )}`}
-                      type="button"
-                    >
-                      <span>{String(index + 1).padStart(2, '0')}</span>
-                      <strong>{scene.label}</strong>
-                    </button>
-                  );
-                })}
-                </div>
-              ) : (
-                <div className={styles.staticTimeline}>
-                  <span aria-hidden="true">▧</span>
-                  <strong>Ready at full resolution</strong>
-                  <small>1080 × 1920 PNG</small>
-                </div>
-              )}
-              {activeFormat.id !== 'photo' ? (
-                <div className={styles.timelineTimes}>
-                  {(activeFormat.id === 'animated'
-                    ? ['00:00', '00:02', '00:04', '00:06']
-                    : ['00:00', '00:10', '00:20', '00:30']
-                  ).map((time) => (
-                    <span key={time}>{time}</span>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </section>
+          <InvitePreview
+            assetBaseUrl={TEMPLATE_ASSET_BASE_URL}
+            format={activeFormat.id}
+            invitationProps={props}
+            onSelectTab={setActiveTab}
+            pausePlayback={isMusicPreviewPlaying}
+            renderStatus={
+              renderJob
+                ? `${renderJob.status} · ${renderJob.progress}%`
+                : null
+            }
+            scenes={previewScenes}
+            templateId={activeTemplate.id}
+            templateVersion={activeTemplate.version}
+          />
         </main>
       )}
 

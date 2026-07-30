@@ -5,7 +5,11 @@ import {
   type EngagementTextFieldKey,
   type InvitationContentProps,
 } from './engagement/model';
-import {getInvitationMusicTrack, invitationMusic} from './music';
+import {
+  getInvitationMusicTrack,
+  invitationMusic,
+  resolveInvitationMusicSource,
+} from './music';
 
 export const invitationTemplateIds = [
   'engagement-invite',
@@ -656,10 +660,11 @@ export const resolveTemplateCopy = (
   const automaticNameLine = [primaryName, secondaryName]
     .filter(Boolean)
     .join(template.nameConnector);
-  const musicSrc =
+  const requestedMusicSrc =
     props.musicSrc === undefined
       ? (template.defaults.musicSrc ?? null)
       : props.musicSrc;
+  const musicSrc = resolveInvitationMusicSource(requestedMusicSrc) ?? null;
   const musicTrack = getInvitationMusicTrack(musicSrc);
   const defaultMusicDuration =
     template.defaults.musicDurationSeconds ?? null;

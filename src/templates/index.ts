@@ -55,6 +55,7 @@ export {
   invitationMusic,
   invitationMusicMixGain,
   invitationMusicTracks,
+  resolveInvitationMusicSource,
   type InvitationMusicMood,
   type InvitationMusicOccasion,
   type InvitationMusicRights,

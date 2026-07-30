@@ -1,4 +1,4 @@
-import {invitationMusic} from '../music';
+import {invitationMusic, resolveInvitationMusicSource} from '../music';
 
 export type InvitationContentProps = {
   brideName?: string;
@@ -232,9 +232,11 @@ export const resolveEngagementInviteProps = (
         ? defaultEngagementInviteProps.photoSrc
         : props.photoSrc,
     musicSrc:
-      props.musicSrc === undefined
-        ? defaultEngagementInviteProps.musicSrc
-        : props.musicSrc,
+      resolveInvitationMusicSource(
+        props.musicSrc === undefined
+          ? defaultEngagementInviteProps.musicSrc
+          : props.musicSrc,
+      ) ?? null,
     musicUploadName:
       props.musicUploadName === undefined
         ? defaultEngagementInviteProps.musicUploadName
